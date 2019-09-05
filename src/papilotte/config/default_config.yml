@@ -1,0 +1,40 @@
+## Default configuration for papilotte
+# Each value can be overriden in a custom config file, an environment
+# variable (NOT IMPLEMENTED YET) or via command line argument 
+# (see papilotte run --help)
+
+# --- server ----------------------------------
+port: 5000
+host: localhost
+log_level: info
+debug: false
+
+# --- api -------------------------------------
+compliance_level: 1
+
+# use a custum spec file (path to file)
+spec_file: NULL
+
+# overrides base path from spec (/api)
+base_path: NULL
+
+# This is the max value for size= param
+max_size: 200
+
+
+
+# --- connector --------------------------------
+connector: papilotte.connectors.mock
+
+
+# --- metadata ---------------------------------
+description: Short description of the data the service provides
+provider: Name of the individual or institution running the service
+contact: contact@example.com
+formats:
+    - application/json
+
+# --- connector.json ---------------------------
+# This paramater is only used from papilotte.connectors.json
+# Point this parameter to the jason file you want to server
+json_file: /var/lib/papilotte/data.json
