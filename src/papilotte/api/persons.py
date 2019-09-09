@@ -6,7 +6,7 @@ from connexion import problem
 from flask import request
 
 from papilotte import options
-
+from papilotte.errors import DeletionError
 
 connector_module = importlib.import_module(options["connector"])
 
@@ -80,6 +80,8 @@ def put(id, body):
     """
     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
     # TODO: metadata enrichment if not set
+    # TODO: id must only contain chars allowed in RFC3986#section-2.3: [A-Za-z0-9_.\-~]
+    # everything else must be encoded via urllib.parse.quote
     if options["compliance_level"] < 2:
         return problem(
             501,
@@ -91,3 +93,30 @@ def put(id, body):
     connector = connector_module.PersonConnector(options)
     data = connector.update(id, body)
     return data
+
+
+def delete(id):
+    """Delete a Person.
+
+    :param id: the id of the person to delete
+    :type id: str
+    :return: None
+    """
+    if options["compliance_level"] < 2:
+        return problem(
+            501,
+            "Not implemented",
+            "Compliance level {} does not allow DELETE requests.".format(
+                options["compliance_level"]
+            ),
+        )
+    connector = connector_module.PersonConnector(options)
+    data = connector.get(id)
+    if data is None:
+        return problem(
+            404, "Not found", "person '{}' does not exist.".format(id)
+        )
+    try:
+        connector.delete(id)
+    except DeletionError as err:
+        return problem('409', 'Conflict', err)
