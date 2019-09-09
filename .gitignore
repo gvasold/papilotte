@@ -2,3 +2,5 @@ venv
 **/__pycache__
 **/*.pyc
 src/Papilotte.egg-info
+.vscode
+.xprocess

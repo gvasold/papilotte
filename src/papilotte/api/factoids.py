@@ -107,5 +107,5 @@ def search(size, page, sortBy="createdWhen", body=None, **filters):
     total_hits = connector.count(**filters)
     return {
         "protocol": {"page": page, "size": size, "totalHits": total_hits},
-        "data": factoids,
+        "factoids": factoids,
     }

@@ -28,15 +28,15 @@ def test_pagination(mockserver, factoidsurl):
     assert response.ok
     data = response.json()
     assert data["protocol"]["page"] == 1
-    assert data["data"][0]["@id"] == "Factoid 001"
-    assert len(data["data"]) == 30
+    assert data["factoids"][0]["@id"] == "Factoid 001"
+    assert len(data["factoids"]) == 30
 
     response = requests.get(factoidsurl + "?page=2")
     data = response.json()
     assert response.ok
     assert data["protocol"]["page"] == 2
-    assert data["data"][0]["@id"] == "Factoid 031"
-    assert len(data["data"]) == 30
+    assert data["factoids"][0]["@id"] == "Factoid 031"
+    assert len(data["factoids"]) == 30
 
 
 def test_no_more_pages(mockserver, factoidsurl):
@@ -57,7 +57,7 @@ def _test_sort_order(mockserver, factoidsurl):
     response = requests.get(factoidsurl)
     assert response.ok
     data = response.json()
-    assert data["data"][0]["@id"] == "Factoid 1"
+    assert data["factoids"][0]["@id"] == "Factoid 1"
 
 def __test_sortorder_value_validation(mockserver, factoidsurl):
     "Test if validation of allowed values for sortBy."
@@ -84,11 +84,11 @@ def test_size(mockserver, factoidsurl):
     # pylint: disable=unused-argument
     response = requests.get(factoidsurl + "?size=3")
     assert response.ok
-    assert len(response.json()["data"]) == 3
+    assert len(response.json()["factoids"]) == 3
 
     response = requests.get(factoidsurl + "?size=50")
     assert response.ok
-    assert len(response.json()["data"]) == 50
+    assert len(response.json()["factoids"]) == 50
 
 
 def test_max_size(mockserver, factoidsurl):
@@ -109,7 +109,7 @@ def test_filter(mockserver, factoidsurl):
 
     response = requests.get(factoidsurl + "?personId=Person+002")
     assert response.ok
-    assert len(response.json()["data"]) == 7
+    assert len(response.json()["factoids"]) == 7
 
     # Search for personId must match the full id
     response = requests.get(factoidsurl + "?personId=Person")
@@ -118,7 +118,7 @@ def test_filter(mockserver, factoidsurl):
     response = requests.get(factoidsurl + "?personId=Person+002&st=Statement content 3")
     # print(r.json())
     assert response.ok
-    assert len(response.json()["data"]) == 2
+    assert len(response.json()["factoids"]) == 2
 
 
 def test_filter_without_result(mockserver, factoidsurl):

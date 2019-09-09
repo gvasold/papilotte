@@ -784,7 +784,7 @@ components:
         properties:
             protocol: 
               $ref: "#/components/schemas/Protocol"
-            data:
+            factoids:
                 type: array
                 items:
                   $ref: "#/components/schemas/Factoid"
@@ -793,7 +793,7 @@ components:
             - size: 30
             - totalHits: 1234
             - page: 2
-          - data: 
+          - factoids: 
             - "@id": TW_Pez1_809_1
               person: 
                 "@id" : Andreas_Reuter
@@ -873,7 +873,7 @@ components:
         properties:
             protocol: 
               $ref: "#/components/schemas/Protocol"
-            data:
+            persons:
                 type: array
                 items:
                   $ref: "#/components/schemas/Person"
@@ -882,7 +882,7 @@ components:
             - size: 30
             - totalHits: 12345
             - page: 2
-          - data:                   
+          - persons:                   
             - "@id": Andreas_Reuter
             - uris:
                 - http://pez-digital.at/persons#Mauro_Aspini
@@ -1017,7 +1017,7 @@ components:
         properties:
             protocol: 
               $ref: "#/components/schemas/Protocol"
-            data:
+            statements:
                 type: array
                 items:
                   $ref: "#/components/schemas/Statement"
@@ -1026,7 +1026,7 @@ components:
             - size: 30
             - totalHits: 1234
             - page: 2
-          - data: 
+          - statements: 
             - "@id": st1
             - ...
             - "@id": st2
@@ -1081,7 +1081,7 @@ components:
         properties:
             protocol: 
               $ref: "#/components/schemas/Protocol"
-            data:
+            sources:
                 type: array
                 items:
                   $ref: "#/components/schemas/Source"
@@ -1090,7 +1090,7 @@ components:
             - size: 30
             - totalHits: 1234
             - page: 2
-          - data:
+          - sources:
             - "@id": source 1
             - ...
             - "@id": source 2

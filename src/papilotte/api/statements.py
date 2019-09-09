@@ -21,6 +21,37 @@ def get(id):
     return data
 
 
+def validate_search(func):
+    "Validating decorator for search."
+    # TODO: validate allowed sort_by names!
+    def wrapper(*args, **kwargs):
+        if kwargs["size"] > options["max_size"]:
+            return problem(
+                400,
+                "Bad Request",
+                "Value of parameter size= must not be greater than %d"
+                % options["max_size"],
+            )
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@validate_search
+def search(size, page, body=None, sortBy="createdWhen", **filters):
+    """Handle a GET request on .../statements.
+    """
+    connector = connector_module.StatementConnector(options)
+    statements = connector.search(size, page, sortBy, **filters)
+    if not statements:
+        return problem(404, "Not found", "No (more) results found.")
+    total_hits = connector.count(**filters)
+    return {
+        "protocol": {"page": page, "size": size, "totalHits": total_hits},
+        "statements": statements,
+    }
+
+
 def post(body):
     """Handles a POST request on .../statements.
     """
@@ -58,33 +89,3 @@ def put(id, body):
     data = connector.update(id, body)
     return data
 
-
-def validate_search(func):
-    "Validating decorator for search."
-    # TODO: validate allowed sort_by names!
-    def wrapper(*args, **kwargs):
-        if kwargs["size"] > options["max_size"]:
-            return problem(
-                400,
-                "Bad Request",
-                "Value of parameter size= must not be greater than %d"
-                % options["max_size"],
-            )
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-@validate_search
-def search(size, page, body=None, sortBy="createdWhen", **filters):
-    """Handle a GET request on .../statements.
-    """
-    connector = connector_module.StatementConnector(options)
-    statements = connector.search(size, page, sortBy, **filters)
-    if not statements:
-        return problem(404, "Not found", "No (more) results found.")
-    total_hits = connector.count(**filters)
-    return {
-        "protocol": {"page": page, "size": size, "totalHits": total_hits},
-        "data": statements,
-    }

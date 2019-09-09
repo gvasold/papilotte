@@ -4,7 +4,7 @@ import re
 from setuptools import find_packages
 from setuptools import setup
 
-with io.open("README.rst", "rt", encoding="UTF-8") as f:
+with io.open("README.md", "rt", encoding="UTF-8") as f:
     readme = f.read()
 
 with io.open('src/papilotte/__init__.py', 'rt', encoding='utf-8') as f:

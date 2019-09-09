@@ -26,15 +26,15 @@ def test_pagination(mockserver, statementsurl):
     assert response.ok
     data = response.json()
     assert data["protocol"]["page"] == 1
-    assert data["data"][0]["@id"] == "F1S1"
-    assert len(data["data"]) == 6
+    assert data["statements"][0]["@id"] == "F1S1"
+    assert len(data["statements"]) == 6
 
     response = requests.get(statementsurl + "?page=2&size=6")
     data = response.json()
     assert response.ok
     assert data["protocol"]["page"] == 2
-    assert data["data"][0]["@id"] == "F7S1"
-    assert len(data["data"]) == 6
+    assert data["statements"][0]["@id"] == "F7S1"
+    assert len(data["statements"]) == 6
 
 
 def test_no_more_pages(mockserver, statementsurl):
@@ -52,11 +52,11 @@ def test_size(mockserver, statementsurl):
     "Size controls the number of persons returned"
     respnse = requests.get(statementsurl + "?size=3")
     assert respnse.ok
-    assert len(respnse.json()["data"]) == 3
+    assert len(respnse.json()["statements"]) == 3
 
     respnse = requests.get(statementsurl + "?size=14")
     assert respnse.ok
-    assert len(respnse.json()["data"]) == 14
+    assert len(respnse.json()["statements"]) == 14
 
 
 def test_max_size(mockserver, statementsurl):
@@ -74,7 +74,7 @@ def test_filter(mockserver, statementsurl):
     """
     response = requests.get(statementsurl + "?sourceId=Source+002")
     assert response.ok
-    assert len(response.json()["data"]) == 4
+    assert len(response.json()["statements"]) == 4
 
     # Search for personId must match the full id
     response = requests.get(statementsurl + "?sourceId=Source")
@@ -82,7 +82,7 @@ def test_filter(mockserver, statementsurl):
 
     response = requests.get(statementsurl + "?sourceId=Source+002&personId=Person+002")
     assert response.ok
-    assert len(response.json()["data"]) == 2
+    assert len(response.json()["statements"]) == 2
 
 
 def test_filter_without_result(mockserver, statementsurl):
