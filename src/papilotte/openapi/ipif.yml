@@ -113,7 +113,7 @@ paths:
         '409':
           description: 'Conflict: Factoid cannot be deleted eg. because of referential integrity. Reason should be given as error response detail'
         '501':
-          $ref: '#/components/responses/NotImplementedError' 
+          $ref: '#/components/responses/NotImplementedError'
   /persons:
     get:
       summary: Get persons
@@ -226,7 +226,7 @@ paths:
         '409':
           description: 'Conflict: Person cannot be deleted eg. because of referential integrity. Reason should be given as error response detail'
         '501':
-          $ref: '#/components/responses/NotImplementedError'         
+          $ref: '#/components/responses/NotImplementedError'
   /sources:
     get:
       summary: Returns array of source objects.
@@ -681,7 +681,7 @@ components:
       properties:
         protocol:
           $ref: '#/components/schemas/Protocol'
-        data:
+        factoids:
           type: array
           items:
             $ref: '#/components/schemas/Factoid'
@@ -758,7 +758,7 @@ components:
       properties:
         protocol:
           $ref: '#/components/schemas/Protocol'
-        data:
+        persons:
           type: array
           items:
             $ref: '#/components/schemas/Person'
@@ -770,7 +770,7 @@ components:
         - persons:
             - '@id': Andreas_Reuter
             - uris:
-                - 'http://pez-digital.at/persons#Mauro_Aspini'
+                - http://pez-digital.at/persons#Mauro_Aspini
             - '@id': Placidus_Seiz
               uris:
                 - 'http://d-nb.info/gnd/10102407X'
@@ -874,7 +874,7 @@ components:
       properties:
         protocol:
           $ref: '#/components/schemas/Protocol'
-        data:
+        statements:
           type: array
           items:
             $ref: '#/components/schemas/Statement'
@@ -975,7 +975,19 @@ components:
 
             We recommend to publish the compliance level additionally als link header  with each response to a GET request in this form:
 
-            ``Link: <https://raw.githubusercontent.com/GVogeler/prosopogrAPhI/master/level1.json>;rel="profile"``
+
+            We recommend to publish the compliance level additionally als link header 
+            with each response to a GET request in this form:
+            
+            
+            ``Link: <https://raw.githubusercontent.com/GVogeler/prosopogrAPhI/master/level1.json>;rel='profile'``
+            
+
+#              TODO: can we put the level.json files somewhere else (not github)?
+##           TODO 
+##          accessRestrictions:
+##            description: TODO
+##            type: string
         formats:
           type: array
           description: 'List of the supported response formats (content types). E.g.  ``application/json`` (default), ``application/xml``, ``application/rdf+xml``, ``application/x-turtle``, ...'
