@@ -4,3 +4,5 @@ venv
 src/Papilotte.egg-info
 .vscode
 .xprocess
+.pytest_cache
+tags

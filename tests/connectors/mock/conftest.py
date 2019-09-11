@@ -42,6 +42,21 @@ def mockdata():
 
 
 @pytest.fixture
+def minimal_mockdata():
+    "Return 1 mock factoid containing only the required properties"
+    data = []
+    factoid = {
+        "person": {"@id": "p1"},
+        "source": {"@id": "s1"},
+        "statement": {"@id": "st1"},
+        "createdBy": {"Foo Bar"},
+        "createdWhen": "2019-01-17",
+    }
+    data.append(factoid)
+    return data
+
+
+@pytest.fixture
 def qfilter():
     "Return a mock.filter object"
     return mock.filter.Filter()

@@ -63,19 +63,19 @@ def statement_contains(stmt, filter_by):
             found = True
         elif filter_by == stmt.get("uri", ""):
             found = True
-        elif labeled_uri_contains(stmt["statementType"], filter_by):
+        elif labeled_uri_contains(stmt.get("statementType"), filter_by):
             found = True
         elif lc_filter_by in stmt.get("name", "").lower():
             found = True
-        elif labeled_uri_contains(stmt["role"], filter_by):
+        elif labeled_uri_contains(stmt.get("role"), filter_by):
             found = True
         elif date_contains_str(stmt.get("date"), filter_by):
             found = True
-        elif labeled_uri_list_contains(stmt["places"], filter_by):
+        elif labeled_uri_list_contains(stmt.get("places"), filter_by):
             found = True
-        elif labeled_uri_list_contains(stmt["relatesToPersons"], filter_by):
+        elif labeled_uri_list_contains(stmt.get("relatesToPersons"), filter_by):
             found = True
-        elif labeled_uri_contains(stmt["memberOf"], filter_by):
+        elif labeled_uri_contains(stmt.get("memberOf"), filter_by):
             found = True
         elif lc_filter_by in stmt.get("statementContent", "").lower():
             found = True
@@ -94,6 +94,7 @@ def labeled_uri_contains(data, filter_by):
     """
     found = False
     if data is not None:
+        print(data)
         label = data.get("label", "")
         uri = data.get("uri", "")
         if filter_by.lower() in label.lower():

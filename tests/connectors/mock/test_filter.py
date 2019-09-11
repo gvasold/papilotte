@@ -64,6 +64,17 @@ def test_filter_by_person(mockdata, qfilter):
     assert len(qfilter.filter(mockdata, p="http://example.com/")) == 0
 
 
+def test_by_person_mininimal_data(minimal_mockdata, qfilter):
+    """Test filtering by p= if factoid only contains required properties.
+    
+    This will bring up potential KeyErrors.
+    """
+    res = qfilter.filter(minimal_mockdata, p='p1')
+    assert len(res) == 1
+    res = qfilter.filter(minimal_mockdata, p='xxxxxx')
+    assert not res
+
+
 def test_filter_by_source(mockdata, qfilter):
     "Test case insensitive fulltext search on most elements of source."
     # find in @id
@@ -91,11 +102,33 @@ def test_filter_by_source(mockdata, qfilter):
     assert len(qfilter.filter(mockdata, s="http://example.com/")) == 0
 
 
-def test_filter_by_statement_statement_id(mockdata, qfilter):
+def test_by_source_mininimal_data(minimal_mockdata, qfilter):
+    """Test filtering by s= if factoid only contains required properties.
+    
+    This will bring up potential KeyErrors.
+    """
+    res = qfilter.filter(minimal_mockdata, s='s1')
+    assert len(res) == 1
+    res = qfilter.filter(minimal_mockdata, s='xxxxxx')
+    assert not res
+
+def test_filter_by_statement_statement(mockdata, qfilter):
     "Test filter by  statement: @id."
     assert len(qfilter.filter(mockdata, st="F8S1")) == 1
     assert len(qfilter.filter(mockdata, st="f8s1")) == 1
     assert len(qfilter.filter(mockdata, st="f8")) == 11
+
+
+def test_by_statement_mininimal_data(minimal_mockdata, qfilter):
+    """Test filtering by st= if factoid only contains required properties.
+    
+    This will bring up potential KeyErrors.
+    """
+    res = qfilter.filter(minimal_mockdata, st='st1')
+    assert len(res) == 1
+    res = qfilter.filter(minimal_mockdata, st='xxx2')
+    assert not res == 0
+
 
 def test_filter_by_statement_uri(mockdata, qfilter):
     "Test filter by  statement: uri."
@@ -193,7 +226,7 @@ def test_filter_by_factoid(mockdata, qfilter):
 
 
 def test_filter_by_statement_content(mockdata, qfilter):
-    "Test searchin in statement statement.statementContent."
+    "Test searching in statement statement.statementContent."
     assert len(qfilter.filter(mockdata, statementContent="Statement content 8")) == 4
     assert len(qfilter.filter(mockdata, statementContent="statement content 8")) == 4
     assert len(qfilter.filter(mockdata, statementContent="content 8")) == 4
