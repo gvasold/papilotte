@@ -2,6 +2,10 @@ import logging
 from collections import ChainMap
 from pkg_resources import resource_filename
 import yaml
+import json
+from papilotte import validator
+from jsonschema.exceptions import ValidationError
+from papilotte.connectors.json.reader import read_json_file
 
 options = {}
 
@@ -31,7 +35,7 @@ def transform_cli_options(**cli_params):
 def get_options(**cli_params):
     """Return a dict of options joint from all configurations.
 
-    FIXME: add reading from environment variables
+    TODO: add reading from environment variables
     :param config_file: Path to the configuration file
     :type config_file: str
     :param **cli_options: A dict of options set via command line.
@@ -61,3 +65,26 @@ def get_options(**cli_params):
                        'port'):
                 options[key] = int(value)
     return options
+
+
+def validate_json(options):
+    """Check in json file contains valid data if the json connector is used.
+    :param options: The server configuration.
+    :type options: dict
+    :raises: JSONValidationError if json file cannot be validated aginst the 
+             IPIF OpenAPI spec.
+    :return: None
+    """
+    if options['connector'] == 'papilotte.connectors.json':
+        spec_file = options.get('spec_file')
+        json_file = options.get('json_file')
+        factoids = read_json_file(json_file)
+        print('==>', json_file)
+        try:
+            for factoid in factoids:
+                validator.validate(factoid, spec_file)
+        except ValidationError as err:
+            msg = ("'{}' contains invalid factoids:\n{}"
+                   "\nUse the 'validate_factoids.py' script to validate your data."
+                   ).format(json_file, validator.make_readable_validation_msg(err))
+            raise validator.JSONValidationError(msg)

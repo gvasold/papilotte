@@ -94,7 +94,6 @@ def labeled_uri_contains(data, filter_by):
     """
     found = False
     if data is not None:
-        print(data)
         label = data.get("label", "")
         uri = data.get("uri", "")
         if filter_by.lower() in label.lower():

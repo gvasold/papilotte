@@ -1,11 +1,15 @@
 """Test the options module
 """
 
+import json
 import logging
+import os
 import tempfile
+import pytest
 
 import yaml
-from papilotte.util import get_options, transform_cli_options
+from papilotte.util import get_options, transform_cli_options, validate_json
+from papilotte.validator import JSONValidationError
 
 
 def test_transform_cli_options_debug():
@@ -190,3 +194,41 @@ def test_get_options_default_and_custom_and_cli_missing_value():
     assert result["contact"] == "contact@example.com"
     assert result["formats"] == ["application/json", "application/xml"]
     assert result["json_file"] == "some_json_file"
+
+
+def test_validate_json(minimal_factoid):
+    "Run validate_json with a valid factoid."
+
+    data_file = tempfile.mkstemp(suffix='.json')[1]
+    data = []
+    data.append(minimal_factoid)
+    options = {
+        'connector': 'papilotte.connectors.json',
+        'json_file': data_file
+    }
+    try:
+        with open(data_file, 'w') as jsonfile:
+            json.dump(data, jsonfile)
+        validate_json(options)
+    except Exception as err:
+        raise err
+    finally:
+        os.unlink(data_file)
+
+def test_validate_json_with_invalid_data(minimal_factoid):
+    "Run validate_json with a invalid factoid."
+
+    data_file = tempfile.mkstemp(suffix='.json')[1]
+    #del minimal_factoid['source']
+    del minimal_factoid['@id']
+    data = []
+    data.append(minimal_factoid)
+    options = {
+        'connector': 'papilotte.connectors.json',
+        'json_file': data_file
+    }
+    with open(data_file, 'w') as jsonfile:
+        json.dump(data, jsonfile)
+    with pytest.raises(JSONValidationError):
+        validate_json(options)
+    os.unlink(data_file)
