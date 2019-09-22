@@ -20,6 +20,7 @@ LOG_LEVELS = {
 def transform_cli_options(**cli_params):
     """Convert options from cli_params to config like options.
     # TODO: check which params are cli params??
+    # TODO: keep log level and 'debug' option apart
     # only used with the built-in server (Flask)
     """
     options = {}

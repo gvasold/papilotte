@@ -6,9 +6,15 @@
 # --- server ----------------------------------
 port: 5000
 host: localhost
-log_level: info
 debug: false
 
+
+# --- logging ---------------------------------
+log_level: info
+# console, file, syslog
+log_handler: console
+
+    
 # --- api -------------------------------------
 compliance_level: 1
 
@@ -36,5 +42,5 @@ formats:
 
 # --- connector.json ---------------------------
 # This paramater is only used from papilotte.connectors.json
-# Point this parameter to the jason file you want to server
+# Point this parameter to the jason file you want to serve
 json_file: /var/lib/papilotte/data.json
