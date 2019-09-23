@@ -10,7 +10,7 @@ from papilotte import options
 connector_module = importlib.import_module(options["connector"])
 
 
-def get(id):
+def get_statement_by_id(id):
     """Handle a GET request on .../statements/{id}.
     """
     connector = connector_module.StatementConnector(options)
@@ -38,7 +38,7 @@ def validate_search(func):
 
 
 @validate_search
-def search(size, page, body=None, sortBy="createdWhen", **filters):
+def get_statements(size, page, body=None, sortBy="createdWhen", **filters):
     """Handle a GET request on .../statements.
     """
     connector = connector_module.StatementConnector(options)
@@ -51,43 +51,4 @@ def search(size, page, body=None, sortBy="createdWhen", **filters):
         "statements": statements,
     }
 
-
-# def post(body):
-#     """Handles a POST request on .../statements.
-#     """
-#     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
-#     # Oder sollte die id ausgelesen und verwendet werden?
-#     # Tendenz: eher simpel halten!
-#     # TODO: metadata enrichment if not set
-#     if options["compliance_level"] < 2:
-#         return problem(
-#             501,
-#             "Not implemented",
-#             "Compliance level {} does not allow POST requests.".format(
-#                 options["compliance_level"]
-#             ),
-#         )
-#     connector = connector_module.StatementConnector(options)
-#     data = connector.save(body)
-#     return data
-
-
-# def put(id, body):
-#     """Handles a PUT request on .../statements/{id}.
-#     """
-#     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
-#     # TODO: metadata enrichment if not set
-#     # TODO: id must only contain chars allowed in RFC3986#section-2.3: [A-Za-z0-9_.\-~]
-#     # everything else must be encoded via urllib.parse.quote
-#     if options["compliance_level"] < 2:
-#         return problem(
-#             501,
-#             "Not implemented",
-#             "Compliance level {} does not allow PUT requests.".format(
-#                 options["compliance_level"]
-#             ),
-#         )
-#     connector = connector_module.PersonConnector(options)
-#     data = connector.update(id, body)
-#     return data
 

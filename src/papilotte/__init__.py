@@ -1,7 +1,8 @@
 import sys
 import logging
 import connexion
-from connexion.resolver import RestyResolver
+#from connexion.resolver import RestyResolver
+from papilotte.resolver import PapiResolver
 from . import util
 import papilotte
 from logging.config import dictConfig
@@ -61,7 +62,7 @@ def create_app(**cli_options):
     app.add_api(
         papilotte.options["spec_file"],
         base_path=papilotte.options["base_path"],
-        resolver=RestyResolver("papilotte.api"),
+        resolver=PapiResolver("papilotte.api"),
         strict_validation=True,
         validate_responses=True,
     )

@@ -11,7 +11,7 @@ from papilotte.errors import DeletionError
 connector_module = importlib.import_module(options["connector"])
 
 
-def get(id):
+def get_factoid_by_id(id):
     """Handle a GET request on .../factoids/{id}.
 
     :param factoid_id: the id of the factoid to return.
@@ -52,7 +52,7 @@ def validate_search(func):
 
 
 @validate_search
-def search(size, page, sortBy="createdWhen", body=None, **filters):
+def get_factoids(size, page, sortBy="createdWhen", body=None, **filters):
     """Handle a GET request on .../factoids.
 
     For some strange reason, body= is only used in connexion with python 3.7
@@ -68,7 +68,7 @@ def search(size, page, sortBy="createdWhen", body=None, **filters):
     }
 
 
-def post(body):
+def create_factoid(body):
     """Handles a POST request on .../factoids.
     """
     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
@@ -89,7 +89,7 @@ def post(body):
     return data
 
 
-def put(id, body):
+def update_factoid(id, body):
     """Handles a PUT request on .../factoids/{id}.
 
     :param id: the id of the factoid to update.
@@ -114,7 +114,7 @@ def put(id, body):
     return data
 
 
-def delete(id):
+def delete_factoid(id):
     """Delete a Factoid.
 
     :param id: the id of the factoid to delete

@@ -11,7 +11,7 @@ from papilotte.errors import DeletionError
 connector_module = importlib.import_module(options["connector"])
 
 
-def get(id):
+def get_person_by_id(id):
     """Handle a GET request on .../persons/{id}.
     """
     connector = connector_module.PersonConnector(options)
@@ -39,7 +39,7 @@ def validate_search(func):
 
 
 @validate_search
-def search(size, page, sortBy="createdWhen", body=None, **filters):
+def get_persons(size, page, sortBy="createdWhen", body=None, **filters):
     """Handle a GET request on .../persons.
     """
     connector = connector_module.PersonConnector(options)
@@ -53,7 +53,7 @@ def search(size, page, sortBy="createdWhen", body=None, **filters):
     }
 
 
-def post(body):
+def create_person(body):
     """Handles a POST request on .../persons.
     :param body: The payload in json format like specified in
         the api spec
@@ -75,7 +75,7 @@ def post(body):
     return data
 
 
-def put(id, body):
+def update_person(id, body):
     """Handles a PUT request on .../persons/{id}.
     """
     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
@@ -95,7 +95,7 @@ def put(id, body):
     return data
 
 
-def delete(id):
+def delete_person(id):
     """Delete a Person.
 
     :param id: the id of the person to delete

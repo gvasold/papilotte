@@ -2,7 +2,7 @@
 """
 from papilotte import options
 
-def search():
+def get_description():
     "Generate the describe info."
     data = {
         'complianceLevel': options['compliance_level'],

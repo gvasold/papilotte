@@ -12,7 +12,7 @@ from papilotte.errors import DeletionError
 connector_module = importlib.import_module(options["connector"])
 
 
-def get(id):
+def get_source_by_id(id):
     """Handle a GET request on .../sources/{id}.
     """
     connector = connector_module.SourceConnector(options)
@@ -40,7 +40,7 @@ def validate_search(func):
 
 
 @validate_search
-def search(size, page, body=None, sortBy="createdWhen", **filters):
+def get_sources(size, page, body=None, sortBy="createdWhen", **filters):
     """Handle a GET request on .../sources.
     """
     connector = connector_module.SourceConnector(options)
@@ -54,7 +54,7 @@ def search(size, page, body=None, sortBy="createdWhen", **filters):
     }
 
 
-def post(body):
+def create_source(body):
     """Handles a POST request on .../sources.
     """
     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
@@ -74,7 +74,7 @@ def post(body):
     return data
 
 
-def put(id, body):
+def update_source(id, body):
     """Handles a PUT request on .../sources/{id}.
     """
     # TODO: in der Spec darf hier id nicht erlaubt sein!?!
@@ -94,7 +94,7 @@ def put(id, body):
     return data
 
 
-def delete(id):
+def delete_source(id):
     """Delete a source.
 
     :param id: the id of the source to delete
