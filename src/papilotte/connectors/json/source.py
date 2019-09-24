@@ -15,7 +15,7 @@ class SourceConnector(mock.SourceConnector):
 
     def __init__(self, options):
         super().__init__(options)
-        self.data = read_json_file(options.get("json_file"), options["contact"])
+        self.data = read_json_file(options.get("json_file"))
 
     def save(self, data):
         "Creating a new source is not supported."
