@@ -79,7 +79,6 @@ def validate_json(options):
         spec_file = options.get('spec_file')
         json_file = options.get('json_file')
         factoids = read_json_file(json_file)
-        print('==>', json_file)
         try:
             for factoid in factoids:
                 validator.validate(factoid, spec_file)

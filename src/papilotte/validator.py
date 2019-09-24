@@ -60,7 +60,6 @@ def validate(factoid, spec_file=None):
     :raises: jsonschema.exceptions.ValidationError, jsonschema.exception.SchemaError
     :return: None
     """
-    print(factoid)
     schemata = get_schema(spec_file)
     factoid_schema = schemata['components']['schemas']['Factoid']
     schemastore = {'': schemata}      
