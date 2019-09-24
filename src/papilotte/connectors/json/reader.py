@@ -33,12 +33,25 @@ def get_cache_file_name(jsonfile):
     return os.path.join(cache_dir, os.path.basename(jsonfile))
 
 
+def get_stmt_metadata(factoid, property_name):
+    """Return value of property_name for statement.
+
+    Takes the value from statement or, if statement does not have
+    such a property from the factoid.
+    """
+    value = factoid.get(property_name)
+    stmt = factoid['statement']
+    if property_name in stmt and stmt[property_name]:
+        value = stmt[property_name]
+    return value
+
+
 def read_json_file(jsonfile):
     """Read the json File from disk.
 
     On the root level the json can be a list of factoids or a
     dict with a property 'factoids'.
-    TODO: validate. 
+    TODO: validate.
     TODO: when validation is implemented, fixing data should no longer be necessary!
     TODO: as soon as we have database support (sqlite here) implemented,
           we can insert the data into the database and keep it there until
@@ -55,6 +68,14 @@ def read_json_file(jsonfile):
             data = json.load(file_)
         if isinstance(data, dict):  # date might also be a json object
             data = data["factoids"]
+            # add missing metadata to statements
+            for factoid in data:
+                factoid['statement']['createdBy'] = get_stmt_metadata(factoid, 'createdBy')
+                factoid['statement']['createdWhen'] = get_stmt_metadata(factoid, 'createdWhen')
+                if 'modifiedBy' in factoid:
+                    factoid['statement']['modifiedBy'] = get_stmt_metadata(factoid, 'modifiedBy')
+                if 'modifiedWhen' in factoid:
+                    factoid['statement']['modifiedWhen'] = get_stmt_metadata(factoid, 'modifiedWhen')
         with open(cache_file, "w") as file_:
             json.dump(data, file_)
     return data

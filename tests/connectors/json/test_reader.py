@@ -4,7 +4,7 @@ import json
 import os
 import tempfile
 
-from papilotte.connectors.json.reader import (read_json_file, get_cache_file_name)
+from papilotte.connectors.json.reader import (read_json_file, get_cache_file_name, get_stmt_metadata)
 from papilotte.connectors.mock.mockdata import make_factoids
 
 
@@ -59,3 +59,59 @@ def test_load_data():
         file_.flush()
     data = read_json_file(origfile)
     assert data[0]['@id'] != 'cached'
+
+
+def test_get_stmt_metadata_keep_values():
+    "Test if metadata is left untouched."
+    factoid = {
+                '@id': 1,
+                'createdBy': 'foo',
+                'createdWhen': '2019-01-01',
+                'modifiedBy': 'bar',
+                'modifiedWhen': '2019-01-02',
+                'statement': {
+                    '@id': 2,
+                    'createdBy': 'foofoo',
+                    'createdWhen': '2019-02-01',
+                    'modifiedBy': 'barbar',
+                    'modifiedWhen': '2019-02-02'
+                }
+        }
+    assert get_stmt_metadata(factoid, 'createdBy') == 'foofoo'
+    assert get_stmt_metadata(factoid, 'createdWhen') == '2019-02-01'
+    assert get_stmt_metadata(factoid, 'modifiedBy') == 'barbar'
+    assert get_stmt_metadata(factoid, 'modifiedWhen') == '2019-02-02'
+
+    
+def test_get_stmt_metadata_add_values():
+    "Test if metadata is taken from factoid if missing."
+    factoid = {
+                '@id': 1,
+                'createdBy': 'foo',
+                'createdWhen': '2019-01-01',
+                'modifiedBy': 'bar',
+                'modifiedWhen': '2019-01-02',
+                'statement': {
+                    '@id': 2,
+                }
+        }
+    assert get_stmt_metadata(factoid, 'createdBy') == 'foo'
+    assert get_stmt_metadata(factoid, 'createdWhen') == '2019-01-01'
+    assert get_stmt_metadata(factoid, 'modifiedBy') == 'bar'
+    assert get_stmt_metadata(factoid, 'modifiedWhen') == '2019-01-02'
+
+
+def test_get_stmt_metadata_add_values_but_modified():
+    "Test if metadata is taken from factoid if missing, but not if modified is missing."
+    factoid = {
+                '@id': 1,
+                'createdBy': 'foo',
+                'createdWhen': '2019-01-01',
+                'statement': {
+                    '@id': 2,
+                }
+        }
+    assert get_stmt_metadata(factoid, 'createdBy') == 'foo'
+    assert get_stmt_metadata(factoid, 'createdWhen') == '2019-01-01'
+    assert get_stmt_metadata(factoid, 'modifiedBy') is None
+    assert get_stmt_metadata(factoid, 'modifiedWhen') is None
