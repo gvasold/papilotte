@@ -24,6 +24,6 @@ def minimal_factoid():
         "source": {"@id": "s1"},
         "statement": {"@id": "st1"},
         "createdBy": "Foo Bar",
-        "createdWhen": "2019-01-17",
+        "createdWhen": "2019-01-17T13:22:01+02:00",
     }
     return factoid 
