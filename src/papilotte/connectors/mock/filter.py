@@ -180,8 +180,6 @@ def date_is_equal_or_before(data, to_):
             sortmockdate = MockDate(dateutil.parse_single_date(sortdate, False))
             if sortmockdate <= to_:
                 found = True
-    if found:
-        print(sortdate, "<=", to_)
     return found
 
 
