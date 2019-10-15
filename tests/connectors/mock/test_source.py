@@ -47,7 +47,7 @@ def test_search_with_filter(sourceconnector):
     assert len(sourceconnector.search(30, 1, s='Source 006')) == 1
     assert len(sourceconnector.search(30, 1, s='Label Source 006')) == 1
     assert len(sourceconnector.search(30, 1, s='Label Source 001')) == 1
-    assert len(sourceconnector.search(30, 1, s='http://example.com/5')) == 6
+    assert len(sourceconnector.search(30, 1, s='http://example.com/5')) == 23 
 
 def test_count(sourceconnector):
     "Test counting of (filtered) sources."

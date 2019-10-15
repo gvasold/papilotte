@@ -78,10 +78,11 @@ def validate_json(options):
     if options['connector'] == 'papilotte.connectors.json':
         spec_file = options.get('spec_file')
         json_file = options.get('json_file')
+        strict_validation =  options.get('strict_validation')
         factoids = read_json_file(json_file)
         try:
             for factoid in factoids:
-                validator.validate(factoid, spec_file)
+                validator.validate(factoid, strict_validation, spec_file)
         except ValidationError as err:
             msg = ("'{}' contains invalid factoids:\n{}"
                    "\nUse the 'validate_factoids.py' script to validate your data."

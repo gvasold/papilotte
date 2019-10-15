@@ -31,7 +31,7 @@ def create_app(**cli_options):
         papilotte.options["spec_file"],
         base_path=papilotte.options["base_path"],
         resolver=RestyResolver("papilotte.api"),
-        strict_validation=True,
-        validate_responses=True,
+        strict_validation=papilotte.options['strict_validation'],
+        validate_responses=papilotte.options['validate_responses']
     )
     return app

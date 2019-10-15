@@ -219,7 +219,6 @@ def test_validate_json_with_invalid_data(minimal_factoid):
     "Run validate_json with a invalid factoid."
 
     data_file = tempfile.mkstemp(suffix='.json')[1]
-    #del minimal_factoid['source']
     del minimal_factoid['@id']
     data = []
     data.append(minimal_factoid)
@@ -229,6 +228,22 @@ def test_validate_json_with_invalid_data(minimal_factoid):
     }
     with open(data_file, 'w') as jsonfile:
         json.dump(data, jsonfile)
+    with pytest.raises(JSONValidationError):
+        validate_json(options)
+    os.unlink(data_file)
+
+
+def test_validate_strict(minimal_factoid):
+    "When options contain strict_validation=True, additional properties are not allowed."
+    minimal_factoid['foo'] = 'bar'
+    data_file = tempfile.mkstemp(suffix='.json')[1]
+    with open(data_file, 'w') as jsonfile:
+        json.dump([minimal_factoid], jsonfile)
+    options = {
+        'connector': 'papilotte.connectors.json',
+        'json_file': data_file,
+        'strict_validation': True
+    }
     with pytest.raises(JSONValidationError):
         validate_json(options)
     os.unlink(data_file)
