@@ -59,7 +59,7 @@ def test_filter_by_person(mockdata, qfilter):
     assert len(qfilter.filter(mockdata, p="person 001")) == 7
 
     # Are uris found?
-    assert len(qfilter.filter(mockdata, p="http://example.com/5")) == 26
+    assert len(qfilter.filter(mockdata, p="http://example.com/5")) == 86
     # no substring search in uris!
     assert len(qfilter.filter(mockdata, p="http://example.com/")) == 0
 
@@ -97,7 +97,7 @@ def test_filter_by_source(mockdata, qfilter):
     assert len(qfilter.filter(mockdata, s="source 001")) == 4
 
     # find in uris
-    assert len(qfilter.filter(mockdata, s="http://example.com/5")) == 24
+    assert len(qfilter.filter(mockdata, s="http://example.com/5")) == 92
     # no substring search in uris!
     assert len(qfilter.filter(mockdata, s="http://example.com/")) == 0
 
@@ -133,12 +133,12 @@ def test_by_statement_mininimal_data(minimal_mockdata, qfilter):
 def test_filter_by_statement_uri(mockdata, qfilter):
     "Test filter by  statement: uri."
     assert (
-        len(qfilter.filter(mockdata, st="http://example.com/statements/1/1"))
-        == 1
+        len(qfilter.filter(mockdata, st="http://example.com/statements/8"))
+        == 97 
     )
     # no substring search in uri
     assert (
-        len(qfilter.filter(mockdata, st="http://example.com/statements/1/"))
+        len(qfilter.filter(mockdata, st="http://example.com/statements/"))
         == 0
     )
 

@@ -27,6 +27,15 @@ base_path: NULL
 # This is the max value for size= param
 max_size: 200
 
+# IPIF allows usage of additional properties in objects 
+# (so properties not defined in the spec)
+# if strict_validation is set to true, usage of additional properties will
+# raise a validation error, which might be helpful to dedect eg. typos
+strict_validation: false
+
+# Set this to true to make papilotte validate responses against the schema
+validate_responses: false
+
 
 
 # --- connector --------------------------------

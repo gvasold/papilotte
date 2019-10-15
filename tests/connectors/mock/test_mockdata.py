@@ -82,7 +82,7 @@ def test_generate_factoid():
         assert factoid["@id"] == "Factoid %03d" % (i + 1)
         assert "Person" in factoid["person"]["@id"]
         assert "Source" in factoid["source"]["@id"]
-        assert 'statement' in factoid
+        assert "statement" in factoid
         assert factoid["statement"]["@id"] == "F%dS1" % (i + 1)
 
 
@@ -105,10 +105,7 @@ def test_make_date():
     assert mockdata.make_date(5) is None
     assert mockdata.make_date(6) == {"label": "1806", "sortdate": "1806"}
     assert mockdata.make_date(7) == {"label": "July 1807", "sortdate": "1807-07"}
-    assert mockdata.make_date(8) == {
-        "label": "8 August 1808",
-        "sortdate": "1808-08-08",
-    }
+    assert mockdata.make_date(8) == {"label": "8 August 1808", "sortdate": "1808-08-08"}
     assert mockdata.make_date(9) == {}
 
 
@@ -135,7 +132,11 @@ def test_make_date_distribution():
 
 def test_uris():
     "Test the mockdata get_uri function."
-    assert mockdata.get_uris(1) == ["http://example.com/1", "http://example.com/2"]
+    assert mockdata.get_uris(1) == [
+        "http://example.com/1",
+        "http://example.com/2",
+        "http://example.com/3",
+    ]
     assert mockdata.get_uris(2) == [
         "http://example.com/1",
         "http://example.com/2",
@@ -143,12 +144,25 @@ def test_uris():
         "http://example.com/4",
         "http://example.com/5",
         "http://example.com/6",
+        "http://example.com/7",
+        "http://example.com/8",
     ]
     assert mockdata.get_uris(3) == [
         "http://example.com/1",
         "http://example.com/2",
         "http://example.com/3",
         "http://example.com/4",
+        "http://example.com/5",
+        "http://example.com/6",
+        "http://example.com/7",
+        "http://example.com/8",
+        "http://example.com/9",
+        "http://example.com/10",
+        "http://example.com/11",
+        "http://example.com/12",
+        "http://example.com/13",
+        "http://example.com/14",
+        "http://example.com/15",
     ]
 
 
@@ -194,62 +208,61 @@ def test_get_creator():
         assert mockdata.get_creator(i) == "Creator %d" % i
 
 
-def test_get_date():
+def test_get_datetime():
     "Test the mockdata get_date function."
     expected = [
-        "2000-01-01",
-        "2000-01-02",
-        "2000-01-02",
-        "2000-01-03",
-        "2000-01-03",
-        "2000-01-04",
-        "2000-01-04",
-        "2000-01-05",
-        "2000-01-05",
-        "2000-01-06",
+        "2000-01-01T00:00:00+02:00",
+        "2000-01-02T10:17:36+02:00",
+        "2000-01-03T20:35:12+02:00",
+        "2000-01-05T06:52:48+02:00",
+        "2000-01-06T17:10:24+02:00",
+        "2000-01-08T03:28:00+02:00",
+        "2000-01-09T13:45:36+02:00",
+        "2000-01-11T00:03:12+02:00",
+        "2000-01-12T10:20:48+02:00",
+        "2000-01-13T20:38:24+02:00",
     ]
-    base_date = datetime.date(2000, 1, 1)
+    base_date = datetime.datetime(2000, 1, 1)
     for i in range(10):
-        assert mockdata.get_date(base_date, i) == expected[i]
+        assert mockdata.get_datetime(base_date, i) == expected[i]
 
 
-def test_get_date_with_offset():
+def test_get_datetime_with_offset():
     "Test if getting a date with offset works."
     expected = [
-        "2000-01-01",
-        "2000-01-03",
-        "2000-01-06",
-        "2000-01-12",
-        "2000-01-19",
-        "2000-01-04",
-        "2000-01-10",
-        "2000-01-19",
-        "2000-01-29",
-        "2000-02-11",
-        "2000-01-06",
-        "2000-01-18",
-        "2000-01-31",
-        "2000-02-16",
-        "2000-03-04",
-        "2000-01-09",
-        "2000-01-25",
-        "2000-02-13",
-        "2000-03-04",
-        "2000-03-27",
+        "2000-01-01T00:00:00+02:00",
+        "2000-01-03T08:30:56+02:00",
+        "2000-01-07T13:28:32+02:00",
+        "2000-01-13T14:52:48+02:00",
+        "2000-01-21T12:43:44+02:00",
+        "2000-01-08T03:28:00+02:00",
+        "2000-01-15T03:05:36+02:00",
+        "2000-01-23T23:09:52+02:00",
+        "2000-02-03T15:40:48+02:00",
+        "2000-02-16T04:38:24+02:00",
+        "2000-01-15T06:56:00+02:00",
+        "2000-01-26T21:40:16+02:00",
+        "2000-02-09T08:51:12+02:00",
+        "2000-02-24T16:28:48+02:00",
+        "2000-03-12T20:33:04+02:00",
+        "2000-01-22T10:24:00+02:00",
+        "2000-02-07T16:14:56+02:00",
+        "2000-02-25T18:32:32+02:00",
+        "2000-03-16T17:16:48+02:00",
+        "2000-04-07T12:27:44+02:00",
     ]
-    base_date = datetime.date(2000, 1, 1)
+    base_date = datetime.datetime(2000, 1, 1)
     for i in range(20):
-        #    print(mockdata._get_date(base_date, i, True))
-        assert mockdata.get_date(base_date, i, True) == expected[i]
+        assert mockdata.get_datetime(base_date, i, True) == expected[i]
 
 
-def test_mod_date_after_creation_date():
+def test_mod_time_after_creation_time():
     "Assert modification cannot be earlier than creation"
-    base_date = datetime.date(2000, 1, 1)
+    base_date = datetime.datetime(2000, 1, 1)
     for i in range(1000):
-        creation_date = mockdata.get_date(base_date, i)
-        modification_date = mockdata.get_date(base_date, i, True)
-        assert creation_date <= modification_date
+        creation_time = mockdata.get_datetime(base_date, i)
+        modification_time = mockdata.get_datetime(base_date, i, True)
+        assert creation_time <= modification_time
 
 
 def test_idempotence():

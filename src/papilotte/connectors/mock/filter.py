@@ -61,7 +61,7 @@ def statement_contains(stmt, filter_by):
     if stmt is not None:
         if lc_filter_by in stmt["@id"].lower():
             found = True
-        elif filter_by == stmt.get("uri", ""):
+        elif filter_by in stmt.get("uris", []):
             found = True
         elif labeled_uri_contains(stmt.get("statementType"), filter_by):
             found = True
@@ -180,8 +180,6 @@ def date_is_equal_or_before(data, to_):
             sortmockdate = MockDate(dateutil.parse_single_date(sortdate, False))
             if sortmockdate <= to_:
                 found = True
-    if found:
-        print(sortdate, "<=", to_)
     return found
 
 

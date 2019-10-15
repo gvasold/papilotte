@@ -16,14 +16,17 @@ import datetime
 import itertools
 import math
 
-FIRST_DATE = datetime.datetime(2004, 5, 3)
+FIRST_DATETIME = datetime.datetime(2004, 5, 3, 17, 23, 55)
 
 
-def get_date(base_date, counter, use_extra_offset=False):
-    """Generate a date string like 2005-04-12 based on the parameters.
+def get_datetime(base_date, counter, use_extra_offset=False):
+    """Generate a date-time string.
+    
+    The string follows RFC 3339 (eg. 2005-04-12T15:22:13-02:00).
+    It is guaranteed, that a higher counter leads to a later datetime.
 
-    :param base_date: a datetime.date object used as base date.
-    :type base_date: datetime.date
+    :param base_date: a datetime.datetime object used as base datetime.
+    :type base_date: datetime.datetime
     :param counter: an int. Typically the counter of a loop.
     :type counter: int
     :param use_extra_offset: Indicates wheather an extra time offset
@@ -33,11 +36,11 @@ def get_date(base_date, counter, use_extra_offset=False):
     :return: a string in the form YYYY-MM-DD
     :rtype: str
     """
-    offset_days = math.ceil(counter / 2)
+    offset_seconds = counter * 123456
     if use_extra_offset:
-        offset_days += (counter % 5) * counter
-    newdate = base_date + datetime.timedelta(days=offset_days)
-    return newdate.strftime("%Y-%m-%d")
+        offset_seconds += (counter % 5) * counter * 80000
+    newdate = base_date + datetime.timedelta(seconds=offset_seconds)
+    return newdate.isoformat() + '+02:00'
 
 
 def get_creator(counter):
@@ -64,18 +67,28 @@ def get_modifier(counter):
     return "Modifier %d" % (id_ + 1)
 
 
-def get_uris(counter):
+def get_uris(counter, factoid_counter=1, prefix=None):
     """Return a list of uris modifier name based on counter.
 
     :param counter: An integer. This value normally comes from a loop.
     :type counter: int
+    :param factoid_counter: An integer. Normally the number of factoids 
+          created to far.
+    :type factoid_counter: int
+    :param prefix: an optional prefix with is inserted in front of the counter
+    :type prefix: str
     :return: A list of strings, where each element represents an uri.
     :rtype: list
     """
     rv = []
-    num = counter * (counter + 1) % 8
-    for i in range(num):
-        rv.append("http://example.com/%d" % (i + 1))
+    if prefix is None:
+        prefix=""
+    else:
+        prefix = prefix + "/"
+    num_of_uris = counter * (counter + 1) * factoid_counter + counter % 8
+    num_in_uri = ((counter + 1001) * (counter + 2012) * factoid_counter - counter) % 10
+    for i in range(num_of_uris):
+        rv.append("http://example.com/%s%d" % (prefix, i + 1))
     return rv
 
 
@@ -172,9 +185,9 @@ def generate_person(max_num=15):
             obj["@id"] = p_id
             obj["uris"] = get_uris(counter)
             obj["createdBy"] = get_creator(counter)
-            obj["createdWhen"] = get_date(FIRST_DATE, counter, False)
+            obj["createdWhen"] = get_datetime(FIRST_DATETIME, counter, False)
             obj["modifiedBy"] = get_modifier(counter)
-            obj["modifiedWhen"] = get_date(FIRST_DATE, counter, True)
+            obj["modifiedWhen"] = get_datetime(FIRST_DATETIME, counter, True)
             cache[p_id] = obj
         counter += 1
         yield cache[p_id]
@@ -201,9 +214,9 @@ def generate_source(max_num=25):
             obj["label"] = "Label %s" % s_id
             obj["uris"] = get_uris(counter)
             obj["createdBy"] = get_creator(counter)
-            obj["createdWhen"] = get_date(FIRST_DATE, counter, False)
+            obj["createdWhen"] = get_datetime(FIRST_DATETIME, counter, False)
             obj["modifiedBy"] = get_modifier(counter)
-            obj["modifiedWhen"] = get_date(FIRST_DATE, counter, True)
+            obj["modifiedWhen"] = get_datetime(FIRST_DATETIME, counter, True)
             cache[s_id] = obj
         counter += 1
         yield cache[s_id]
@@ -227,7 +240,7 @@ def generate_statement(factoid, factoid_counter):
     while True:
         obj = {}
         obj["@id"] = "F%dS%d" % (factoid_counter, counter)
-        obj["uri"] = "http://example.com/statements/%d/%d" % (factoid_counter, counter)
+        obj["uris"] = get_uris(counter, factoid_counter, 'statements')
         obj["statementType"] = make_label_objects(
             1, "statement type", (counter * factoid_counter) % 20
         )[0]
@@ -273,9 +286,9 @@ def generate_factoid():
         factoid["person"] = next(p_generator)
         factoid["source"] = next(s_generator)
         factoid["createdBy"] = get_creator(counter)
-        factoid["createdWhen"] = get_date(FIRST_DATE, counter, False)
+        factoid["createdWhen"] = get_datetime(FIRST_DATETIME, counter, False)
         factoid["modifiedBy"] = get_modifier(counter)
-        factoid["modifiedWhen"] = get_date(FIRST_DATE, counter, True)
+        factoid["modifiedWhen"] = get_datetime(FIRST_DATETIME, counter, True)
         # No need for a generator here, but I keep it as it already exists
         st_generator = generate_statement(factoid, counter)
         factoid["statement"] = next(st_generator)
