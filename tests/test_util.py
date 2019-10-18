@@ -8,8 +8,9 @@ import tempfile
 import pytest
 
 import yaml
-from papilotte.util import get_options, transform_cli_options, validate_json
+from papilotte.util import get_options, transform_cli_options, validate_json, validate_log_options, get_logging_configuration
 from papilotte.validator import JSONValidationError
+from papilotte.errors import ConfigurationError
 
 
 def test_transform_cli_options_debug():
@@ -247,3 +248,76 @@ def test_validate_strict(minimal_factoid):
     with pytest.raises(JSONValidationError):
         validate_json(options)
     os.unlink(data_file)
+
+
+def test_validate_log_options():
+    "Test validation of logging options."
+    options = {}
+    log_handlers = ["console"]
+    validate_log_options(options, log_handlers)
+
+    log_handlers = ["console", "syslog"]
+    validate_log_options(options, log_handlers)
+
+    # not supported log handler
+    with pytest.raises(ConfigurationError):
+        validate_log_options({}, ["foo"])
+
+    # file handler requires a log_file value
+    options = {"log_file": "/tmp/papilotte.log"}
+    validate_log_options(options, ["file"])
+
+    # a missing log_file value must raise an exception
+    with pytest.raises(ConfigurationError):
+        validate_log_options({}, ['file'])
+
+    # the same with None
+    # a missing log_file value must raise an exception
+    options = {"log_file": None}
+    with pytest.raises(ConfigurationError):
+        validate_log_options(options, ['file'])
+
+    # log directory must exist
+    options = {"log_file": "/dasfgdahgfld/papilotte.log"}
+    with pytest.raises(ConfigurationError):
+        validate_log_options(options, ['file'])
+
+
+def test_get_logging_configuration_console():
+    "Test creation of a logging.config.dictConfig dictionary."
+    options = {
+        "log_level": logging.WARNING,
+    }
+    cfg = get_logging_configuration(options)
+    assert "console" in cfg["handlers"]
+    assert cfg["handlers"]["console"]["level"] == logging.WARNING
+
+    # the same with an explicitely set log_handler
+    options['log_handlers'] = "console"
+    cfg = get_logging_configuration(options)
+    assert "console" in cfg["handlers"]
+    assert cfg["handlers"]["console"]["level"] == logging.WARNING
+
+
+def test_get_logging_configuration_syslog():
+    "Test creation of a logging.config.dictConfig dictionary."
+    options = {
+        "log_level": logging.ERROR,
+        "log_handlers": "syslog"
+    }
+    cfg = get_logging_configuration(options)
+    assert "syslog" in cfg["handlers"]
+    assert cfg["handlers"]["syslog"]["level"] == logging.ERROR
+
+
+def test_get_logging_configuration_file():
+    "Test creation of a logging.config.dictConfig dictionary."
+    options = {
+        "log_level": logging.ERROR,
+        "log_handlers": "file",
+        "log_file": "/tmp/papilotte.log"
+    }
+    cfg = get_logging_configuration(options)
+    assert "file" in cfg["handlers"]
+    assert cfg["handlers"]["file"]["level"] == logging.ERROR
+    assert cfg["handlers"]["file"]["filename"] == "/tmp/papilotte.log"

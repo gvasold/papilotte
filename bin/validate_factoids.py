@@ -44,7 +44,7 @@ def run(jsonfile, quiet=False, permissive=False, spec_file=None):
                     "{} ... invalid\n\t{}".format(
                         f_id, validator.make_readable_validation_msg(err)
                     ),
-                    flush=True,
+                    flush=True
                 )
     if not quiet:
         print(

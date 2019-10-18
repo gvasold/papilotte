@@ -11,8 +11,10 @@ debug: false
 
 # --- logging ---------------------------------
 log_level: info
-# console, file, syslog
-log_handler: console
+# Set one or more space separated values from: console, file, syslog
+log_handlers: console
+# Only required for 'file' log handler
+log_file: NULL
 
     
 # --- api -------------------------------------
