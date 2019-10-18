@@ -36,7 +36,7 @@ def get_schema(spec_file=None):
     if not cached_schema:
         # Use the default spec file
         if not spec_file:
-            spec_file = resource_filename("papilotte", "openapi/ipif.yml")
+            spec_file = resource_filename('papilotte', 'openapi/ipif.yml')
 
         with open(spec_file, encoding="UTF-8") as file_:
             spec_data = yaml.safe_load(file_)
