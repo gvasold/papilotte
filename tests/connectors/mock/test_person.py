@@ -41,7 +41,7 @@ def test_search_with_filter(personconnector):
     "Filter by uri"
     assert len(personconnector.search(30, 1, personId='Person 012')) == 1
     assert len(personconnector.search(30, 1, p='Person 00')) == 9
-    assert len(personconnector.search(30, 1, p='http://example.com/5')) == 4
+    assert len(personconnector.search(30, 1, p='http://example.com/5')) == 13
 
 def test_count(personconnector):
     "Test counting of (filtered) persons."

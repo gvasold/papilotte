@@ -82,7 +82,7 @@ def test_generate_factoid():
         assert factoid["@id"] == "Factoid %03d" % (i + 1)
         assert "Person" in factoid["person"]["@id"]
         assert "Source" in factoid["source"]["@id"]
-        assert 'statement' in factoid
+        assert "statement" in factoid
         assert factoid["statement"]["@id"] == "F%dS1" % (i + 1)
 
 
@@ -105,10 +105,7 @@ def test_make_date():
     assert mockdata.make_date(5) is None
     assert mockdata.make_date(6) == {"label": "1806", "sortdate": "1806"}
     assert mockdata.make_date(7) == {"label": "July 1807", "sortdate": "1807-07"}
-    assert mockdata.make_date(8) == {
-        "label": "8 August 1808",
-        "sortdate": "1808-08-08",
-    }
+    assert mockdata.make_date(8) == {"label": "8 August 1808", "sortdate": "1808-08-08"}
     assert mockdata.make_date(9) == {}
 
 
@@ -135,7 +132,11 @@ def test_make_date_distribution():
 
 def test_uris():
     "Test the mockdata get_uri function."
-    assert mockdata.get_uris(1) == ["http://example.com/1", "http://example.com/2"]
+    assert mockdata.get_uris(1) == [
+        "http://example.com/1",
+        "http://example.com/2",
+        "http://example.com/3",
+    ]
     assert mockdata.get_uris(2) == [
         "http://example.com/1",
         "http://example.com/2",
@@ -143,12 +144,25 @@ def test_uris():
         "http://example.com/4",
         "http://example.com/5",
         "http://example.com/6",
+        "http://example.com/7",
+        "http://example.com/8",
     ]
     assert mockdata.get_uris(3) == [
         "http://example.com/1",
         "http://example.com/2",
         "http://example.com/3",
         "http://example.com/4",
+        "http://example.com/5",
+        "http://example.com/6",
+        "http://example.com/7",
+        "http://example.com/8",
+        "http://example.com/9",
+        "http://example.com/10",
+        "http://example.com/11",
+        "http://example.com/12",
+        "http://example.com/13",
+        "http://example.com/14",
+        "http://example.com/15",
     ]
 
 
@@ -206,7 +220,7 @@ def test_get_datetime():
         "2000-01-09T13:45:36+02:00",
         "2000-01-11T00:03:12+02:00",
         "2000-01-12T10:20:48+02:00",
-        "2000-01-13T20:38:24+02:00"
+        "2000-01-13T20:38:24+02:00",
     ]
     base_date = datetime.datetime(2000, 1, 1)
     for i in range(10):
@@ -235,7 +249,7 @@ def test_get_datetime_with_offset():
         "2000-02-07T16:14:56+02:00",
         "2000-02-25T18:32:32+02:00",
         "2000-03-16T17:16:48+02:00",
-        "2000-04-07T12:27:44+02:00"
+        "2000-04-07T12:27:44+02:00",
     ]
     base_date = datetime.datetime(2000, 1, 1)
     for i in range(20):

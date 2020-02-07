@@ -39,7 +39,7 @@ def test_search_with_filter(factoidconnector):
     assert len(factoidconnector.search(30, 1, factoidId='Factoid 006')) == 1
     assert len(factoidconnector.search(30, 1, s='Label Source 006')) == 4
     assert len(factoidconnector.search(30, 1, st='F5S1')) == 1
-    assert len(factoidconnector.search(30, 1, p='http://example.com/5')) == 26
+    assert len(factoidconnector.search(30, 1, p='http://example.com/5')) == 30
 
 def test_count(factoidconnector):
     "Test counting of (filtered) sources."

@@ -67,18 +67,28 @@ def get_modifier(counter):
     return "Modifier %d" % (id_ + 1)
 
 
-def get_uris(counter):
+def get_uris(counter, factoid_counter=1, prefix=None):
     """Return a list of uris modifier name based on counter.
 
     :param counter: An integer. This value normally comes from a loop.
     :type counter: int
+    :param factoid_counter: An integer. Normally the number of factoids 
+          created to far.
+    :type factoid_counter: int
+    :param prefix: an optional prefix with is inserted in front of the counter
+    :type prefix: str
     :return: A list of strings, where each element represents an uri.
     :rtype: list
     """
     rv = []
-    num = counter * (counter + 1) % 8
-    for i in range(num):
-        rv.append("http://example.com/%d" % (i + 1))
+    if prefix is None:
+        prefix=""
+    else:
+        prefix = prefix + "/"
+    num_of_uris = counter * (counter + 1) * factoid_counter + counter % 8
+    num_in_uri = ((counter + 1001) * (counter + 2012) * factoid_counter - counter) % 10
+    for i in range(num_of_uris):
+        rv.append("http://example.com/%s%d" % (prefix, i + 1))
     return rv
 
 
@@ -230,7 +240,7 @@ def generate_statement(factoid, factoid_counter):
     while True:
         obj = {}
         obj["@id"] = "F%dS%d" % (factoid_counter, counter)
-        obj["uri"] = "http://example.com/statements/%d/%d" % (factoid_counter, counter)
+        obj["uris"] = get_uris(counter, factoid_counter, 'statements')
         obj["statementType"] = make_label_objects(
             1, "statement type", (counter * factoid_counter) % 20
         )[0]
