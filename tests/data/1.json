@@ -1,0 +1,116 @@
+{
+  "factoids": [
+    {
+      "@id": "F00001",
+      "createdBy": "Creator 00001",
+      "createdWhen": "2003-02-15T00:03:00",
+      "person": {
+        "@id": "P00002",
+        "uris": [
+          "https://example.com/persons/2",
+          "https://example.com/persons/3"
+        ],
+        "createdBy": "Creator 00001",
+        "createdWhen": "2003-02-15T00:06:00",
+        "modifiedBy": "Modifier 00001",
+        "modifiedWhen": "2003-02-15T00:12:00"
+      },
+      "source": {
+        "@id": "S00002",
+        "uris": [
+          "https://example.com/sources/2",
+          "https://example.com/sources/3"
+        ],
+        "label": "Source 00002",
+        "createdBy": "Creator 00001",
+        "createdWhen": "2003-02-15T00:06:00",
+        "modifiedBy": "Modifier 00001",
+        "modifiedWhen": "2003-02-15T00:12:00"
+      },
+      "statements": [
+        {
+          "@id": "Stmt00001",
+          "createdBy": "Creator 00001",
+          "createdWhen": "2003-02-15T00:03:00",
+          "uris": [
+            "https://example.com/statements/1"
+          ],
+          "name": "Statement 00001",
+          "date": {
+            "sortDate": "1802-04-22",
+            "label": "Historical Date 00003"
+          },
+          "memberOf": {
+            "uri": "https://example.com/groups/00002",
+            "label": "Group 00002"
+          },
+          "places": [
+            {
+              "uri": "https://example.com/places/00002",
+              "label": "Place 00002"
+            },
+            {
+              "label": "Place 00003"
+            }
+          ],
+          "relatesToPersons": [
+            {
+              "uri": "https://example.com/relatedpersons/00002",
+              "label": "Related person 00002"
+            },
+            {
+              "label": "Related person 00003"
+            }
+          ],
+          "role": {
+            "uri": "https://example.com/roles/00002",
+            "label": "Role 00002"
+          },
+          "statementContent": "Statement content 00002",
+          "statementType": {
+            "uri": "https://example.com/statementtypes/00002",
+            "label": "Statement type 00002"
+          }
+        },
+        {
+          "@id": "Stmt00002",
+          "createdBy": "Creator 00001",
+          "createdWhen": "2003-02-15T00:03:00",
+          "modifiedBy": "Modifier 00001",
+          "modifiedWhen": "2003-02-15T00:06:00",
+          "uris": [
+            "https://example.com/statements/1"
+          ],
+          "name": "Statement 00002",
+          "date": {
+            "sortDate": "1802-09-22",
+            "label": "Historical Date 00005"
+          },
+          "memberOf": {
+            "label": "Group 00003"
+          },
+          "places": [
+            {
+              "label": "Place 00003"
+            },
+            {
+              "uri": "https://example.com/places/00004",
+              "label": "Place 00004"
+            },
+            {
+              "uri": "https://example.com/places/00005"
+            }
+          ],
+          "relatesToPersons": [],
+          "role": {
+            "label": "Role 00003"
+          },
+          "statementContent": "Statement content 00003",
+          "statementType": {
+            "label": "Statement type 00003"
+          }
+        }
+      ]
+    }
+  ]
+}
