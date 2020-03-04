@@ -1,17 +1,18 @@
-"""Command line command for papilotte.
+"""Command line commands for papilotte.
 """
 import logging
 import click
 from clickclick import AliasedGroup
-from papilotte import __version__, create_app
+from papilotte import __version__
+from papilotte import server
 
-logger = logging.getLogger('papilotte.cli')
+logger = logging.getLogger(__name__)
 
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-def print_version(ctx, param, value):
+def print_version(ctx, _, value):
     "Print papilotte version."
     if not value or ctx.resilient_parsing:
         return
@@ -26,13 +27,13 @@ def print_version(ctx, param, value):
 def main():
     "Empty function for param --version."
 
-
-# DO NOT DEFINE DEFAULT VALUES OR OVERRIDING CONFIGURATION VALUES
-# WILL BREAK! CHANGE VALUES IN config/default_config.yml INSTEAD!
+# TODO: implement environment switcher
+# So not set default value, as these will overrule all other
+# config settings
 @main.command()
-@click.option('--spec-file', '-s', type=click.Path(),
-              help=('Path to the openapi spec file. '
-                    'Use only if you need a customized spec file.'))
+#@click.option('--spec-file', '-s', type=click.Path(),
+#              help=('Path to the openapi spec file. '
+#                    'Use only if you need a customized spec file.'))
 @click.option('--config-file', '-c', type=click.Path(),
               help=('Path to the configuration file. '
                     'Values defined there are overriden by values '
@@ -53,7 +54,10 @@ def run(**params):
 
     Run papilotte run --help to see paramaters.
     """
-    app = create_app(**params)
+    configfile = params.pop('config_file', None)
+    # we are not interested in unused params
+    cli_options = {key:value for (key, value) in params.items() if value is not None}
+    app = server.create_app(configfile, cli_options)
     app.run()
 
 

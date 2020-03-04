@@ -1,8 +1,14 @@
 venv
 **/__pycache__
 **/*.pyc
+**/_test_*.py
 src/Papilotte.egg-info
 .vscode
 .xprocess
 .pytest_cache
 tags
+tags.lock
+tags.temp
+
+illurk
+potthast

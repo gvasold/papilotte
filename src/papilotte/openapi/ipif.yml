@@ -34,6 +34,7 @@ paths:
         - $ref: '#/components/parameters/to'
         - $ref: '#/components/parameters/place'
         - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/depth'
       responses:
         '200':
           description: A list of Factoids with some metadata
@@ -582,6 +583,15 @@ components:
       description: Filters by full text  search in the description of the user responsbile for a modification of the object. A group of persons is represented by a comma seperated list.
       schema:
         type: string
+    depth:
+      name: depth
+      in: query
+      description: "declares the depth of description to be returned by a list of factoids. With the keyword `reduced` the response should return only `@id` for the source, the person, and the statement aggregated by the factoid. If no value is given, the factoids return the full information."
+      schema:
+        type: string
+        enum:
+          - full
+          - reduced
   responses:
     BadRequestError:
       description: Bad request. Caused by unknown parameters or illegal parameter values
@@ -843,19 +853,8 @@ components:
           properties:
             sortdate:
               type: string
-              description: 'Formal version of the date following RFC 3339. This date is not expected to represent the full 
-                            range of possible dating, but supports these notations: 
-
-                               * yyyy-mm-dd
-                               * yyyy-mm
-                               * yyyy
-                               * -yyyy-mm-dd (for bc dates)
-                               * -yyyy-mm (for bc dates)
-                               * -yyyy (for bc dates)
-
-                            Use the label property to describe the date in more detail dates by 
-                            century, by year, time ranges, date not before/not after, and similar.'
-              pattern: "^-?[0123]?[0-9]{1,3}(-(0[1-9]|1[0-2]))?(-(0[1-9]|[12][0-9]|3[01]))?$"
+              format: date
+              description: 'Formal version of the date following W3C recommendations. This date is not expected to represent the full range of possible dating. Use the label property to describe the date in more detail dates by century, by year, time ranges, date not before/not after, and similar.'
             label:
               type: string
               description: 'verbal version of the date, which should enable the human reader to get an idea of the chronological concept.'
@@ -1002,6 +1001,11 @@ components:
         contact:
           description: 'address of a contact point (e-mail, phone etc.)'
           type: string
+        vocabs:
+          description: "lists all vocabularies used for URIs in the `role` and `statemenType` properties of the statements. API consumers should be able to create valid assumption on URIs used in properties of the statements."
+          type: array
+          items:
+            type: string
         complianceLevel:
           type: number
           description: |
@@ -1051,16 +1055,16 @@ components:
       type: string
       description: The user responsbile for a creation of the object. A group of persons is represented by a comma seperated list.
     createdWhen:
-      description: 'Date and time of the creation of the object. The format must be a RFC 3339 conform date-time string like `1985-04-12T23:20:50.52+02:00`'
+      description: ''
       type: string
-      format: date-time
+      format: date
     modifiedBy:
       type: string
-      description: The user responsible for the last modification of the object. A group of persons is represented by a comma seperated list.
+      description: The user responsbile for a modification of the object. A group of persons is represented by a comma seperated list.
     modifiedWhen:
-      description: 'Date and time of the last modification of the object. The format must be a RFC 3339 conform date-time string like `1985-04-12T23:20:50.52+02:00`'
+      description: ''
       type: string
-      format: date-time
+      format: date
     Error:
       type: object
       required:

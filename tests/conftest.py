@@ -1,29 +1,39 @@
 """Pytest fixtures for json tests.
 """
 
-
+import os
+import json
 import pytest
+import papilotte.configuration
+#from papilotte.connectors import mock
+import toml
 
-from papilotte.connectors import mock
+#from papilotte.connectors import mock as mockconnector
 
+from papilotte import mockdata
+
+
+
+# ------------- Fixture for IPIF date (dictionaries)  ----------------
 
 @pytest.fixture
-def mock_factoid():
-    "Return a full mock Factoid"
-    generator = mock.mockdata.generate_factoid()
-    data = next(generator)
+def data1():
+    "Return the first mockdata factoid as dict."
+    data ={'factoids': []}
+    for i, factoid in enumerate(mockdata.make_factoids(1)):
+        if i == 1:
+            break
+        data['factoids'].append(factoid)
     return data
 
 
 @pytest.fixture
-def minimal_factoid():
-    "Return a mock factoid containing only the required properties"
-    factoid = {
-        "@id": "f1",
-        "person": {"@id": "p1"},
-        "source": {"@id": "s1"},
-        "statement": {"@id": "st1"},
-        "createdBy": "Foo Bar",
-        "createdWhen": "2019-01-17T13:22:01+02:00",
-    }
-    return factoid 
+def data200():
+    "Return 200 mockdata factoids as dict"
+    data ={'factoids': []}
+    for i, factoid in enumerate(mockdata.make_factoids(1)):
+        if i == 200:
+            break
+        data['factoids'].append(factoid)
+    return data
+

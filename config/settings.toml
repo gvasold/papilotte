@@ -1,0 +1,91 @@
+[server]
+  ### Fully qualified name of the connector package to use
+  # connector = "papilotte.connectors.pony"
+
+  ### Host name the server is running on
+  # host = "localhost"
+
+  ### Port number Papilotte should listen to
+  # port = 5000
+
+  ### Validates responses against openapi schematas.
+  ### For production use you might want set this to false
+  # responseValidation = false
+
+  ### Set this to false to allow parameters not defined in the papi openapi spec
+  # strictValidation = true
+
+  ### Run Server in debug mode. Do not use this for production!
+  # debug = false
+
+[logging]
+  ### Port of the syslog server. Only used if 'logTo' is set to 'syslog'
+  # logPort = 514
+
+  ### Set the log level. Must be one of these values:
+  ### 'debug', 'info', 'warn', 'error'
+  # logLevel = "info"
+
+  ### Maximum number of bytes for the log file.
+  ### The log file will be rotated automatically if it becomes larger than this value
+  ### Value can be set in Bytes, Kilobytes (k), Megabytes (m) or Gigabytes (g)
+  ### Only used if 'logTo' is set to 'file
+  # maxLogFileSize = "1M"
+
+  ### The name of the log file. Only used when 'logTo' is set to 'file'
+  # logFile = ""
+
+  ### Hostname of the syslog host. Only used if 'logTo' is set to 'syslog'
+  # logHost = "localhost"
+
+  ### Set the target for logging. Must be one of these values:
+  ### 'console', 'file', 'syslog'
+  # logTo = "console"
+
+  ### Number of old log files to keep after rotation. Only used when 'logTo' is set to 'file'
+  # keepLogFiles = 3
+
+[api]
+  ### Set IPIF compliance level. Must be a value between 0 and 2
+  # complianceLevel = 1
+
+  ### Name of the IPIF spec file to use. Change this to use a custom spec file (not recommended)
+  # specFile = "/home/vasold/projekte/papilotte/src/papilotte/openapi/ipif.yml"
+
+  ### Base path for accessing the api
+  # basePath = "/api"
+
+  ### Mamimum number of objects returned with one request
+  # maxSize = 200
+
+  ### Response formats supported by this server. At the moment only 'application/json' is implemented
+  # formats = [ "application/json",]
+
+[metadata]
+  ### How to contact the data provider. Eg. an email address.
+  # contact = "No contact information available"
+
+  ### Information about the data provider. This can be a person or institution
+  # provider = "No data provider information available"
+
+  ### Verbal description of the data provided by this server
+  # description = "No description available"
+
+### This sections depends on the connector to use
+### Here an example for the default pony connector
+[connector]
+### provider sets the database to use. Allowed values are:
+### sqlite, postgresql, mysql, oracle
+# provider: sqlite
+
+### Sets the file name for the database. Only used if 'provider' is 'sqlite'
+### The default value ':memory: creates a non persistent in-memory-database
+# filename: :memory:
+### Set the host name of the database. Not used if 'provider' is 'sqlite'
+# host = ""
+### Set the user for connecting to the database. Not used if 'provider' is 'sqlite'
+# user = ""
+### Set the password for the database. Not used if 'provider' is 'sqlite'
+# password = ""
+### Set the database name to use. Not used if 'provider' is 'sqlite'
+# database = ""

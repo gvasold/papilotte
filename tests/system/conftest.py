@@ -5,66 +5,197 @@
 import sys
 
 import pytest
-from xprocess import ProcessStarter
+import toml
+import copy
+import json
+import os
+import tempfile
+from papilotte import server, configuration
+from papilotte.connectors.pony import database
+from pony import orm
+from papilotte import mockdata
 
-# These values are used to automatically start a server for system tests
-SERVER_NAME = "papilotte"
-SERVER_PORT = "16165"
-# Set this to False if you want to start the server by hand
-AUTOSTART_SERVER = True
-
-
-BASE_URL = "http://localhost:%s/api/" % SERVER_PORT
-
-@pytest.fixture(scope="session")
-def factoidsurl():
-    "Return the base url for system tests agains factoids."
-    return BASE_URL + "factoids"
+BASE_URL = "/api/" 
 
 
-@pytest.fixture(scope="session")
-def personsurl():
-    "Return the base url for system tests agains persons."
-    return BASE_URL + "persons"
+# A basic configuration for testing
+BASE_CFG = {
+    'server': {
+        'connector': "papilotte.connectors.pony",
+        'host': "localhost",
+        'port': 5000,
+        'responseValidation': False,  # FIXME: set to true if api reflect the new schemas
+        'debug': True
+    },
+    'logging': {
+        'logLevel': "info",
+        'logTo': "console"
+    },
+    'api': {
+        'complianceLevel': 2,
+        'basePath': "/api",
+        'maxSize': 800
+    },
+    'metadata': {
+        'contact': "MockContact",
+        'provider': "MockProvider",
+        'description': "MockDescription"
+    },
+    'connector': {
+        'provider': "sqlite",
+        'filename': "/tmp/x.db"
+    }
+}
 
+@pytest.fixture
+def person1():
+    "Return person with id 'P00001' from test data as dict"
+    for factoid in mockdata.make_factoids(200):
+        if factoid["person"]["@id"] == "P00001":
+            return factoid['person']
 
-@pytest.fixture(scope="session")
-def sourcesurl():
-    "Return the base url for system tests agains sources."
-    return BASE_URL + "sources"
+@pytest.fixture
+def source1():
+    "Return source with id 'S00001' from test data as dict"
+    for factoid in mockdata.make_factoids(200):
+        if factoid["source"]["@id"] == "S00001":
+            return factoid['source']
 
+@pytest.fixture
+def statement1():
+    "Return statement with id Stmt00001 from test data as dict"
+    for factoid in mockdata.make_factoids(200):
+        for stmt in factoid['statements']:
+            if stmt["@id"] == "Stmt00001":
+                return stmt
 
-@pytest.fixture(scope="session")
-def statementsurl():
-    "Return the base url for system tests agains statements."
-    return BASE_URL + "statements"
+@pytest.fixture
+def factoid1():
+    "Return factoid with id F00001 from test data as dict."
+    for factoid in mockdata.make_factoids(200):
+        if factoid['@id'] == 'F00001':
+            return factoid
 
+@pytest.fixture(scope='module')
+def db200_static_file():
+    """Generate a pre-populated read only database with 200 factoids.
 
-@pytest.fixture(scope="session")
-def mockserver(xprocess):
-    """Start the server with mock connector for integration tests.
+    The database lives in a temporary directory.
+    Return the path to the sqlite dabase file.
     """
-    # Sometimes it comes in handy to run the server manually (eg. for debugging)
-    # So we only start the server if it is not running
+    with tempfile.TemporaryDirectory() as tmp_path:
+        dbfile = os.path.join(tmp_path, 'test.db')
+        db = database.make_db(provider='sqlite', filename=dbfile)
+        Factoid = db.entities['Factoid']
+        with orm.db_session: 
+            for factoid in mockdata.make_factoids(200):
+                Factoid.create_from_ipif(factoid)
+            db.commit()
+            conn = db.get_connection()
+            conn.execute("PRAGMA query_only = ON")
+        yield dbfile
 
-    if AUTOSTART_SERVER:
+@pytest.fixture
+def db20_file():
+    """Generate a pre-populated database with 20 factoids.
+    This database can be used to test modifying access to objects.
 
-        class Starter(ProcessStarter):
-            "Start a papilotte server to run tests against it."
-            pattern = "Running on"
-            args = [
-                sys.executable,
-                "-m",
-                "papilotte",
-                "run",
-                "-p",
-                "16165",
-            ]  # , '--connector', 'papilotte.connectors.mock']
+    The database lives in a temporary directory.
+    Return the path to the sqlite dabase file.
+    """
+    with tempfile.TemporaryDirectory() as tmp_path:
+        dbfile = os.path.join(tmp_path, 'test.db')
+        db = database.make_db(provider='sqlite', filename=dbfile)
+        Factoid = db.entities['Factoid']
+        with orm.db_session: 
+            for factoid in mockdata.make_factoids(20):
+                Factoid.create_from_ipif(factoid)
+        yield dbfile
 
-        xprocess.ensure(SERVER_NAME, Starter)
 
-        yield
+@pytest.fixture(scope='module')
+def cfgfile_cl0(db200_static_file):
+    """Return path to configfile for compliance level 0.
 
-        xprocess.getinfo(SERVER_NAME).terminate()
-    else:
-        yield
+    This fixture not only configures the server, but also
+    creates a static mock database with 200 factoids in the temporary
+    directory where the configfile is written to.
+    """
+    import shutil
+    fname = os.path.dirname(db200_static_file).split('/')[-1] + '.db'
+    shutil.copy(db200_static_file, '/tmp/' + fname)
+    cfg = copy.deepcopy(BASE_CFG)
+    cfgfile = os.path.join(os.path.dirname(db200_static_file), 'papi.toml')
+    cfg['connector']['filename'] = db200_static_file
+    cfg['api']['complianceLevel'] = 0
+    with open(cfgfile, 'w') as fh:
+        fh.write(toml.dumps(cfg))
+        fh.flush()
+    yield cfgfile
+
+@pytest.fixture(scope="module")
+def cfgfile_cl1(db200_static_file):
+    """Return path to configfile for compliance level 1.
+
+    This fixture not only configures the server, but also
+    creates a mock database with 200 factoids in the temporary
+    directory where the configfile is written to.
+
+    As compliance level 1 is read only by default, we can set scope to session.
+    """
+    cfg = copy.deepcopy(BASE_CFG)
+    cfgfile = os.path.join(os.path.dirname(db200_static_file), 'papi.toml')
+    cfg['connector']['filename'] = db200_static_file
+    cfg['api']['complianceLevel'] = 1
+    with open(cfgfile, 'w') as fh:
+        fh.write(toml.dumps(cfg))
+        fh.flush()
+    yield cfgfile
+
+@pytest.fixture
+def cfgfile_cl2(db20_file):
+    """Return path to configfilei for compliance level 2.
+
+    This fixture not only configures the server, but also
+    creates a mock database with 20 factoids in the temporary
+    directory where the configfile is written to.
+    """
+    cfg = copy.deepcopy(BASE_CFG)
+    cfgfile = os.path.join(os.path.dirname(db20_file), 'papi.toml')
+    cfg['connector']['filename'] = db20_file
+    cfg['api']['complianceLevel'] = 2
+    with open(cfgfile, 'w') as fh:
+        fh.write(toml.dumps(cfg))
+        fh.flush()
+    yield cfgfile
+
+@pytest.fixture(scope='module')
+def mockclient_cl0(cfgfile_cl0):
+    """Return a test client for a complianceLevel 0 server.
+    The server has a database with 200 mock factoids.
+    
+    As compliance level 0 is read only by default, we can set scope to session.
+    """
+    app = server.create_app(cfgfile_cl0)
+    with app.app.test_client() as client:
+        yield client
+
+@pytest.fixture(scope='module')
+def mockclient_cl1(cfgfile_cl1):
+    """Return a test client for a complianceLevel 0 server.
+    The server has a database with 200 mock factoids.
+
+    As compliance level 1 is read only by default, we can set scope to session.
+    """
+    app = server.create_app(cfgfile_cl1)
+    with app.app.test_client() as client:
+        yield client
+
+@pytest.fixture
+def mockclient_cl2(cfgfile_cl2):
+    """Return a test client for a complianceLevel 0 server.
+    The server has a database with 20 mock factoids.
+    """
+    app = server.create_app(cfgfile_cl2)
+    with app.app.test_client() as client:
+        yield client

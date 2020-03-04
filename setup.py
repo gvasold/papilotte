@@ -45,9 +45,13 @@ setup(
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=[
-        "connexion>=2.3.0",
+        "connexion==2.3.0",
         "swagger-ui-bundle>=0.0.5",
-        "strict-rfc3339"
+        "strict-rfc3339",
+        "pytz>=2019.3",
+        "toml",
+        "voluptuous",
+        "pony"
     ],
     extras_require={
         "dev": [

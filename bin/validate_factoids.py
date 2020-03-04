@@ -11,16 +11,13 @@ from papilotte import validator
 from jsonschema.exceptions import ValidationError
 
 
-def run(jsonfile, quiet=False, permissive=False, spec_file=None):
+def run(jsonfile, quiet=False, spec_file=None):
     """Does the real validation work.
 
     :param jsonfile: Path to the file to validate
     :type jsonfile: str
     :param quiet: If set to True suppresses all output
     :type quiet: bool
-    :param permessive: If set to True, validation will allow object properties,
-        which are not part of the IPIF specification. For compatibility it it
-        advisable not to use this parameter.
     :param spec_file: OpenAPI spec file to use for validation
     :type spec_file: str
     :return: True if no validation errors occured.
@@ -34,8 +31,7 @@ def run(jsonfile, quiet=False, permissive=False, spec_file=None):
     for factoid in data:
         f_id = factoid["@id"]
         try:
-            strict = not permissive
-            validator.validate(factoid, strict=strict, spec_file=spec_file)
+            validator.validate(factoid, spec_file)
             valid_factoid_counter += 1
         except ValidationError as err:
             invalid_factoid_counter += 1
@@ -44,7 +40,7 @@ def run(jsonfile, quiet=False, permissive=False, spec_file=None):
                     "{} ... invalid\n\t{}".format(
                         f_id, validator.make_readable_validation_msg(err)
                     ),
-                    flush=True
+                    flush=True,
                 )
     if not quiet:
         print(
@@ -59,8 +55,6 @@ def run(jsonfile, quiet=False, permissive=False, spec_file=None):
 @click.command()
 @click.argument("jsonfile")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress output")
-@click.option('-p', '--permissive', is_flag=True, 
-              help="Allow properties which are not part of the IPIF spec")
 @click.option(
     "-s",
     "--spec-file",
@@ -70,7 +64,7 @@ def run(jsonfile, quiet=False, permissive=False, spec_file=None):
         "custom spec file"
     ),
 )
-def main(jsonfile, quiet, permissive, spec_file):
+def main(jsonfile, quiet, spec_file):
     """Validates a json file containing factoids against the OpenAPI spec.
 
     The JSON file can contain the factoids directly as array:
@@ -86,7 +80,7 @@ def main(jsonfile, quiet, permissive, spec_file):
 
     Returns 0 if no validation errors were found, otherwise 1.
     """
-    if run(jsonfile, quiet, permissive, spec_file):
+    if run(jsonfile, quiet, spec_file):
         sys.exit(0)
     sys.exit(1)
 
