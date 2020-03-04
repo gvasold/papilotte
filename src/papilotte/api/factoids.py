@@ -1,143 +1,179 @@
-"""Handles all methods on .../factoids
+"""Handles all methods on .../persons
 """
-
-import importlib
-
 from connexion import problem
+from flask import current_app as app
+from flask import request
 
-from papilotte import options
-from papilotte.errors import DeletionError
+from papilotte.exceptions import (CreationException, DeletionError,
+                                  ReferentialIntegrityError, InvalidIdError)
+from papilotte.api import is_valid_id, split_sortby, fix_ids
 
-connector_module = importlib.import_module(options["connector"])
+
+ALLOWED_SORT_BY_VALUES = ['id', 'createdWhen', 'createdBy', 'modifiedWhen', 'modifiedBy']
+
+# FIXME: nur für Faktoid!!!
+#    depth:
+#      in: query
+#      description: "declares the depth of description to be returned by a list of factoids. With the keyword 
+#      `reduced` the response should return only `id` for the source, the person, and the statement aggregated 
+#      by the factoid. If no value is given, the factoids return the full information."
+#        enum:
+#          - full
+#          - reduced
+
+# TODO: statementType fehlt hier?
+
+# These are cl0 filters (delete after all connectors are done)
+#    'createdAfter', 'createdBefore', 'createdBy', 'factoidid', 'from', 'memberOf', 
+#    'modifiedAfter', 'modifiedBefore', 'modifiedBy' 'name', 'personid', 'place', 
+#    'relatesToPerson', 'role', 'sourceid', 'statementcontent', 'statementid', 'to', 
+
+# These are exclude by spec: ['createdAfter', 'createdBefore', 'createdBy', 'modifiedAfter', 'modifiedBefore', 'modifiedBy', 'personid']
+# These filters can be used in CL0
+ALLOWED_FILTERS_CL0 = ['factoidid', 'from', 'memberof', 'name', 'place', 'relatestoperson', 
+    'role', 'sourceid', 'statementcontent', 'statementid', 'to']
+
+# These filters can be used in CL1 and CL2
+ALLOWED_EXTRA_FILTERS = ['f', 'p', 's', 'st']
 
 
-def get_factoid_by_id(id):
-    """Handle a GET request on .../factoids/{id}.
 
-    :param factoid_id: the id of the factoid to return.
-    :type status: str
-    :return: a single factoid
-    :rtype: Factoid
-    """
-    connector = connector_module.FactoidConnector(options)
-    data = connector.get(id)
-    if data is None:
-        return problem(404, "Not found", "Factoid %s does not exist." % id)
-    return data
+
+def get_connector():
+    "Utility function: return the configured papilotte connector."
+    connector_module = app.config['PAPI_CONNECTOR_MODULE']
+    connector_configuration = app.config['PAPI_CONNECTOR_CONFIGURATION']
+    return connector_module.FactoidConnector(connector_configuration)
+
 
 
 def validate_search(func):
-    "Validation decorator for search."
-    # TODO: validate allowed sort_by names! Either in spec or here.
+    "Validating decoration for search function."
     def wrapper(*args, **kwargs):
-        if kwargs["size"] > options["max_size"]:
-            return problem(
-                400,
-                "Bad Request",
+        # validate size
+        if kwargs["size"] > app.config["PAPI_MAX_SIZE"]:
+            return problem( 400, "Bad Request",
                 "Value of parameter size= must not be greater than %d"
-                % options["max_size"],
+                % app.config["PAPI_MAX_SIZE"]
             )
-        ## FIXME: Gibt es eine Möglichkeit, tiefer zu suchen?
-        ##        z.B. statement/id usw.????
-        # allowed_sortby_values = ('createdWhen', 'createdBy',
-        #        'modifiedWhen', 'modifiedBy', 'id')
-        # if 'sortBy' in kwargs:
-        #    if kwargs['sortBy'] not in allowed_sortby_values:
-        #        return problem(400, "Bad Request",
-        #            ("Value %s of sortBy is not allowed. Use one of "
-        #            "%s!") % (kwargs['sortBy'], ', '.join(allowed_sortby_values)))
+        # validate value of sortBy    
+        sort_by, _ = split_sortby(kwargs['sortBy'])
+        if sort_by.lower() not in [v.lower() for v in ALLOWED_SORT_BY_VALUES]:
+            return problem( 400, "Bad Request",
+                "Value '{}' of parameter sortBy= is not allowed. Use one of these values: {}".format(
+                    kwargs['sortBy'], ", ".join(ALLOWED_SORT_BY_VALUES)))
+        # validate filter names (depending on compliance level)
+        non_filters = ('size', 'page', 'sortBy', 'body')
+        if app.config['PAPI_COMPLIANCE_LEVEL'] == 0:
+            for kw in kwargs:
+                if kw not in non_filters and not kw.lower() in ALLOWED_FILTERS_CL0:
+                    return problem(400, "Bad Request", "'{}' is not a valid filter for compliance level 0".format(kw))
+        else: # compliance level > 0
+            allowed_filters = ALLOWED_FILTERS_CL0 + ALLOWED_EXTRA_FILTERS
+            for kw in kwargs:
+                if kw not in non_filters and not kw.lower() in allowed_filters:
+                    return problem(400, "Bad Request", 
+                        "'{}' is not a valid filter for compliance level {}".format(kw, app.config['PAPI_COMPLIANCE_LEVEL']))
         return func(*args, **kwargs)
-
     return wrapper
 
 
 @validate_search
-def get_factoids(size, page, sortBy="createdWhen", body=None, **filters):
-    """Handle a GET request on .../factoids.
-
-    For some strange reason, body= is only used in connexion with python 3.7
+def get_factoids(size, page, sortBy='createdWhen', body=None, **filters):
+    """Return a (filtered) list of factoids.
     """
-    connector = connector_module.FactoidConnector(options)
-    factoids = connector.search(size, page, sortBy, **filters)
+    connector = get_connector()
+    # we assume all other kwargs are filters
+    sort_by, sort_order = split_sortby(sortBy)
+
+    # from is a reserved word, so we replace it with 'from_'
+    from_ = filters.pop('from', '')
+    if from_: filters['from_'] = from_
+    
+    factoids = connector.search(size, page, sort_by, sort_order, **filters)
     if not factoids:
         return problem(404, "Not found", "No (more) results found.")
     total_hits = connector.count(**filters)
     return {
         "protocol": {"page": page, "size": size, "totalHits": total_hits},
-        "factoids": factoids,
+        "factoids": factoids
     }
 
 
-def create_factoid(body):
-    """Handles a POST request on .../factoids.
-    """
-    # TODO: in der Spec darf hier id nicht erlaubt sein!?!
-    # Oder sollte die id ausgelesen und verwendet werden?
-    # Tendenz: eher simpel halten!
-    # TODO: metadata enrichment if not set
-    if options["compliance_level"] < 2:
-        return problem(
-            501,
-            "Not implemented",
-            "Compliance level {} does not allow POST requests.".format(
-                options["compliance_level"]
-            ),
-        )
-
-    connector = connector_module.FactoidConnector(options)
-    data = connector.save(body)
+def get_factoid_by_id(id):
+    "Return factoid object with id `id` or raise a 404 error."
+    connector = get_connector()
+    data = connector.get(id)
+    if data is None:
+        return problem(404, "Not found", "Factoid %s does not exist." % id)
     return data
 
-
-def update_factoid(id, body):
-    """Handles a PUT request on .../factoids/{id}.
-
-    :param id: the id of the factoid to update.
-    :type status: str
-    :return: a single factoid
-    :rtype: Factoid
-    """
-    # TODO: in der Spec darf hier id nicht erlaubt sein!?!
-    # TODO: metadata enrichment if not set
-    # TODO: id must only contain chars allowed in RFC3986#section-2.3: [A-Za-z0-9_.\-~]
-    # everything else must be encoded via urllib.parse.quote
-    if options["compliance_level"] < 2:
+def create_factoid(body):
+    # TODO: metadata enrichment if not set?
+    if app.config["PAPI_COMPLIANCE_LEVEL"] < 2:
         return problem(
             501,
             "Not implemented",
             "Compliance level {} does not allow PUT requests.".format(
-                options["compliance_level"]
+                app.config["PAPI_COMPLIANCE_LEVEL"]
             ),
         )
-    connector = connector_module.FactoidConnector(options)
+    connector = get_connector()
+    # it seems that connexion converts '@id' to 'id'??
+    # to make thing consistent for further processing, we revert this
+    body = fix_ids(body)
+    #if not '@id' in body and 'id' in body:
+    #    body['@id'] = body['id']
+
+    # This should be handled by spec!
+    #if '@id' in body and not is_valid_id(body['@id']):
+    #    return problem(400, "Bad Request", 'Illegal character in id')
+
+    try:
+        data = connector.create(body)
+        return data
+    except CreationException as err:
+        return problem( 409, "Conflict", str(err))
+
+def update_factoid(id, body):
+    # TODO: metadata enrichment if not set?
+
+    if app.config["PAPI_COMPLIANCE_LEVEL"] < 2:
+        return problem(
+            501,
+            "Not implemented",
+            "Compliance level {} does not allow PUT requests.".format(
+                app.config["PAPI_COMPLIANCE_LEVEL"]
+            ),
+        )
+    # This should be handled by spec!
+    #if not is_valid_id(id):
+    #    return problem(400, "Bad Request", str('Illegal character in id.'))
+    connector = get_connector()
     data = connector.update(id, body)
     return data
 
 
 def delete_factoid(id):
-    """Delete a Factoid.
+    """Delete Factoid with id `id`. 
 
-    :param id: the id of the factoid to delete
-    :type id: str
-    :return: None
+    Only allowed in comliance level 2.
     """
-    if options["compliance_level"] < 2:
+    if app.config["PAPI_COMPLIANCE_LEVEL"] < 2:
         return problem(
             501,
             "Not implemented",
             "Compliance level {} does not allow DELETE requests.".format(
-                options["compliance_level"]
+                app.config["PAPI_COMPLIANCE_LEVEL"]
             ),
         )
-    connector = connector_module.FactoidConnector(options)
-    data = connector.get(id)
-    if data is None:
-        return problem(
-            404, "Not found", "factoid '{}' does not exist.".format(id)
-        )
+    connector = get_connector()
+    if connector.get(id) is None:
+        return problem(404, "Not found", "Factoid %s does not exist." % id)
     try:
         connector.delete(id)
+    except ReferentialIntegrityError as err:
+        return problem(409, "Conflict", str(err))
     except DeletionError as err:
-        return problem('409', 'Conflict', err)
-
-        
+        # a more generic probem during deletion
+        return problem(500, "Server Error", str(err))
