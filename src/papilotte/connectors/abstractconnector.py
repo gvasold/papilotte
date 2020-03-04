@@ -1,6 +1,9 @@
 """Defines an abstract base class for all connectors.
 """
 
+# explain the exception (api consumes a limited number of exception)
+# it's the developers responsibility to catch all connector specific connection
+# and map these to one of the papilotte exceptions.
 
 class AbstractConnector:
     """An abstract connector class.
@@ -9,13 +12,14 @@ class AbstractConnector:
     overrides all methods.
     """
 
-    def __init__(self, options):
-        """Initilaize a Connector object.
+    def __init__(self, configuration):
+        """Initialize a Connector object.
 
-        :param options: a dictionary containing the server configuration
+        :param configuration: a dictionary containing the connector part of the
+                server configuration
         :type: dict
         """
-        self.options = options
+        #self.options = options
         if self.__class__ == "AbstractConnector":
             raise NotImplementedError(
                 (
@@ -23,7 +27,7 @@ class AbstractConnector:
                     "You have to write your own subclass."
                 )
             )
-
+        
     def get(self, obj_id):
         """Return the object with id obj_id.
 
@@ -37,14 +41,16 @@ class AbstractConnector:
         """
         raise NotImplementedError("Abstract method 'get' must be overriden!")
 
-    def search(self, size, page, sort_by="createdWhen", **filters):
+    def search(self, size, page, sort_by="createdWhen", sort_order='ASC', **filters):
         """Find all objects that match the filter conditions set via
         filters.
 
         The method supports paging via size (entry per page) and
         page (start with page n).
-        The filter conditions are defined in the openapi specof the
-        object.
+        
+        The filter conditions are defined in the openapi spec of the
+        object. All values are strings. A connector can expect, that values
+        of from= and to= are valid ISO 8601 conform full date strings (yyyy-mm-dd).
 
         :param size: Number of results per page
         :type size: int
@@ -77,7 +83,7 @@ class AbstractConnector:
         """
         raise NotImplementedError("Abstract method 'count' must be overriden!")
 
-    def save(self, data):
+    def create(self, data):
         """Return
 
         This method MAY be overriden by a custom implementation.
