@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import click
 import json
 import re
@@ -5,14 +7,16 @@ import requests
 import logging
 import urllib.parse
 
-#def clean_id(id_):
-#    return id_
+
+class ImportError(Exception):
+    pass
+
 
 def post(url, data):
     "A post request with some error handling."
     r = requests.post(url, json=data)
     if r.status_code > 210:
-        raise Exception(r.text)
+        raise ImportError(r.text)
     return r.json
 
 
@@ -20,7 +24,7 @@ def put(url, data):
     "A put request with some error handling."
     r = requests.put(url, json=data)
     if r.status_code > 210:
-        raise Exception(r.text)
+        raise ImportError(r.text)
     return r.json
 
 def insert_person(data, baseurl):
@@ -113,7 +117,7 @@ def import_factoids(data, baseurl,auto_escape=False):
             #inserted_f_ids.append(factoid['@id'])
             # TODO: to a rollback???
 
-    except Exception as err:
+    except ImportError as err:
         # for p_id in p_ids:
         #     requests.delete(baseurl + '/persons/' + p_id)
         #     # fixme: zuerst die faktoide löschen, dann die anderen ggf, 409 abfangen 
