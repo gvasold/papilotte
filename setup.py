@@ -45,9 +45,9 @@ setup(
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=[
-	"werkzeug==0.15.6", # remove after upgrading to next connexion version
-        "swagger-ui-bundle==0.0.5", # set to >= after connexion upgrade
-        "connexion==2.3.0",
+	#"werkzeug==0.15.6", # remove after upgrading to next connexion version
+        "swagger-ui-bundle>=0.0.6", # set to >= after connexion upgrade
+        "connexion==2.6.0",
         "strict-rfc3339",
         "pytz>=2019.3",
         "toml",
