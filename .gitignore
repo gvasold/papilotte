@@ -1,4 +1,8 @@
-venv
+venv/
+build/
+dist/
+.coverage
+.tox/
 **/__pycache__
 **/*.pyc
 **/_test_*.py

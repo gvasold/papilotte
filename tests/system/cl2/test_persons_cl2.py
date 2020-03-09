@@ -90,7 +90,7 @@ def test_delete_person(mockclient_cl2):  # , person1):
     # solitaire person to test deletion purpose
     mockclient_cl2.put("/api/persons/LonerPerson", json={"@id": "LonerPerson"})
     r = mockclient_cl2.delete(TEST_URL + "/LonerPerson")
-    assert r.status_code == 200
+    assert r.status_code == 204
 
     ## Check if it is really gone
     r = mockclient_cl2.get(TEST_URL + "/LonerPerson")

@@ -92,7 +92,7 @@ def test_delete_source(mockclient_cl2):
     # solitaire source to test deletion purpose
     mockclient_cl2.put(TEST_URL + "/LonerSource", json={"@id": "LonerSource"})
     r = mockclient_cl2.delete(TEST_URL + "/LonerSource")
-    assert r.status_code == 200
+    assert r.status_code == 204
 
     ## Check if it is really gone
     r = mockclient_cl2.get(TEST_URL + "/LonerSource")
