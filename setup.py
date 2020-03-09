@@ -52,7 +52,7 @@ setup(
         "pytz>=2019.3",
         "toml",
         "voluptuous",
-        "pony"
+        "pony==0.7.11"
     ],
     extras_require={
         "dev": [

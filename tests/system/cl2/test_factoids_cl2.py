@@ -106,4 +106,4 @@ def test_delete_factoid(mockclient_cl2):
     # which actually should be impossible. But nevertheless we create a
     # solitaire factoid to test deletion purpose
     r = mockclient_cl2.delete(TEST_URL + '/F00009')
-    assert r.status_code == 200
+    assert r.status_code == 204
